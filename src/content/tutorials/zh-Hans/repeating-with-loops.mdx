@@ -1,0 +1,1419 @@
+---
+title: "使用循环进行重复"
+description: "使用循环和数组创建一场爬行的毛毛虫赛跑！"
+category: introduction
+categoryIndex: 5
+featuredImage: ../images/featured/loops.png
+featuredImageAlt: 三只粉色毛毛虫瞪着圆圆的眼睛在起跑线上等待比赛，旁边有"点击开始"的文字。
+authors:
+  - Joanne Amarisa
+  - Layla Quiñones
+  - Greg Benedis-Grab
+---
+
+import EditableSketch from "../../../components/EditableSketch/index.astro";
+import Callout from "../../../components/Callout/index.astro";
+import AnnotatedLine from "../../../components/AnnotatedLine/index.astro";
+
+## 介绍
+
+想过只用几行代码就能绘制许多图形，将你的项目提升到一个新的水平吗？想象一下画一排树、一摞书、彩虹的拱形或蜂巢的内部。为了创建由同一形状的不同版本组成的视觉效果，我们需要超越编写单个形状的代码，进入循环和数组的奇妙世界。让我们学习如何只用几行代码就能创建重复的图案！
+
+![一个拱形和六边形垂直排列，标签写着"单个对象"。箭头从这些形状指向"复制的对象"标签下垂直排列的对应图案。单个拱形指向五个垂直堆叠的拱形，形成彩虹形状。六边形指向排列成蜂巢镶嵌图案的许多六边形。](../images/introduction/loops-intro.png)
+
+每个形状都用一行新代码来绘制将是一个繁琐的过程。相反，我们可以使用*循环*，它允许我们按照需要多次执行和重复代码块。在本教程中，我们使用循环和数组来创建[一个毛毛虫赛跑草图](https://editor.p5js.org/gbenedis@gmail.com/sketches/BrmtZ36ET)。
+
+![三只粉色毛毛虫爬向画布右侧的绿色终点线。](../images/introduction/caterpillar-race-end.gif)
+
+一组毛毛虫将从赛跑的起跑线开始，第一个通过终点线的毛毛虫获胜。每次运行草图时，获胜的毛毛虫都会不同！
+
+在本教程中，你将：
+
+- 使用 *for 循环* 绘制和更新重复的任务和图形
+- 使用自定义函数来更新变量和程序状态，并在草图运行时对程序进行更改。
+- 使用[条件语句](/reference/p5/if)和 `random()` 生成不同的结果
+- 使用鼠标触发器和[布尔变量](/reference/p5/Boolean)运行和停止你的草图
+- 将毛毛虫的位置存储在数组中
+
+### 你需要什么
+
+- [p5.js 网页编辑器](https://editor.p5js.org/)
+- 了解如何使用 x 和 y 坐标在 p5.js 中绘制基本形状和文本
+  - 你可以参考我们之前的教程，[入门指南](/tutorials/get-started)
+- 了解变量和条件语句
+  - 你可以参考我们之前的教程，[变量与变化](/tutorials/variables-and-change/) 和 [条件语句与交互](/tutorials/conditionals-and-interactivity)
+- 了解自定义函数和参数
+  - 你可以参考我们之前的教程，[使用函数组织代码](/tutorials/organizing-code-with-functions)
+
+
+## 第 1 步 – 绘制赛道
+
+- 在 [p5.js 网页编辑器](https://editor.p5js.org/) 中打开一个新项目，给它起一个像 "Caterpillar Race" 这样的名字，然后保存。
+- 在 `setup()` 中，创建一个 500x500 像素的画布。
+- 在 `setup()` 上方声明两个新的全局变量，分别定义起跑线和终点线的 x 坐标。我们将这两个变量命名为 startLine 和 finishLine。
+  - 根据你想放置起跑线和终点线的位置，在 x 轴上为它们赋值。在本例中，我们将 startLine 设置为 30，finishLine 设置为 360。
+- 在 `draw()` 函数中：
+  - 设置背景颜色。例如，我们将使用 `background(121, 96, 76)` 将其设置为棕色；
+  - 绘制一个矩形，将其 x 坐标设置为 `startLine`。将其高度设置为 `height`，使其在画布上垂直延伸。
+  - 在 `finishLine` 处绘制另一个矩形，重复相同的步骤。
+  - 用不同的颜色填充两个矩形。
+- 不要忘记命名和保存你的草图。
+
+你的代码可能看起来像这样：
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+function setup() {
+  // 500x500 canvas
+  createCanvas(500, 500); 
+}
+
+function draw() {
+  //set background color
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+}
+`} />
+
+## 第 2 步 – 绘制一个毛毛虫节段并使其移动。
+
+接下来，我们将在画布上绘制毛毛虫的一个节段，并使其从起跑线移动到终点线。它将在比赛结束时停止。
+
+- 声明一个名为 `circX` 的新全局变量，并将其赋值为 `startLine`。
+  - 这将是毛毛虫节段的 x 坐标。
+- 声明一个名为 `circY` 的新全局变量，并将其赋值为 250（或高度的一半）。
+  - 这将是毛毛虫节段的 y 坐标。
+- 在 `draw()` 中：
+  - 使用 `circle()` 函数绘制毛毛虫节段。包括 `circX`、`circY` 和 50 作为参数来指定 x 坐标、y 坐标和直径：`circle(circX, circY, 50);`
+  - 我们还将给圆形一个白色填充和细黑色描边。
+  - 在 circle 命令下方，使用 `circX += 20;` 将 `circX` 增加 20
+    - 这意味着每次 `draw()` 函数运行时，变量 `circX` 将增加 20 像素。草图将在前一个圆形右侧 20 像素处绘制一个新圆形，从而创建毛毛虫的形状。
+- 在 `draw()` 的末尾添加以下条件语句：
+
+  ```js
+  if (circX > finishLine) {
+    noLoop();
+  }
+  ```
+
+`noLoop()` 函数阻止 `draw()` 函数再次运行。`if` 语句在圆形的 x 坐标超过 finishLine 的值时，使用 `noLoop()` 停止 `draw()`。请访问 p5.js 参考了解更多关于 [`noLoop()`](/reference/p5/noLoop) 的信息。
+
+在 `setup()` 中，添加：`frameRate(3);`
+
+- [帧率](/reference/p5/frameRate)是 `draw()` 每秒运行的次数。将其设置为较低的数字将使这个动画的运动更加明显和戏剧化。
+
+你的代码应该看起来像这样：
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables to draw circles starting point.
+let circX = startLine;
+
+let circY = 250;
+
+function setup() {
+  createCanvas(500, 500); 
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw a circle.
+  fill(255);
+  stroke(0);
+  circle(circX, circY, 50);
+
+  // Move the x-coordinate
+  // to the right.
+  circX += 20;
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+### [If 语句](/reference/p5/if)
+
+If 语句，如上面应用的那样，指的是只有在给定条件为真时才执行的代码块。它通常写成：
+
+```js
+if (<条件>) {
+  <代码>
+}
+```
+
+条件在 if 语句的括号内指定。花括号 `{ }` 标记代码块的开始和结束。在第 2 步中，条件 `circX > finishLine` 在圆形的 x 坐标大于 `finishLine` 的值时，通过调用 `noLoop()` 来停止 `draw()` 的再次运行。
+
+请访问 p5.js 参考的 [if](/reference/p5/if) 了解更多信息。
+
+
+## 第 3 步 – 绘制一只毛毛虫
+
+我们将重复第 2 步的毛毛虫节段，制作一行构成毛毛虫身体的圆形。我们将使用 *for 循环* 在一行中绘制多个圆形。
+
+
+### 3.1 – 声明毛毛虫身体的属性
+
+在 `setup()` 上方：
+
+- 声明一个名为 `segments` 的新变量并赋值为 6。
+  - 此变量定义组成毛毛虫身体的圆形数量。
+- 声明一个名为 `spacing` 的新变量并赋值为 20。
+  - 此变量定义毛毛虫身体节段之间的像素间距。
+- 声明一个名为 `segmentSize` 的新变量并赋值为 50。
+  - 此变量定义圆形身体节段的直径。
+
+
+### 3.2 – 使用 *for 循环* 构建毛毛虫的身体
+
+在 `draw()` 中：
+
+- 在绘制终点线的代码之后，声明一个新的局部变量 `x` 来定位所有身体节段：`let x = circX;`
+- 添加一个 *for 循环*：`for (let i = 0; i < segments; i += 1) { }`
+  - *for 循环* 将多次重复我们写在花括号内的代码。
+  - 将绘制 `circle()` 的代码行移到 *for 循环* 的花括号内。
+- 在 for 循环后，添加：`circX += spacing`
+  - 这使得每次 `draw()` 运行时，毛毛虫的身体向右移动。
+
+你的代码应该看起来像这样：
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // a local variable to position the body segments
+  let x = circX;
+
+  // draw multiple circles (caterpillar body)
+  for (let i = 0; i < segments; i += 1) {
+    // Draw a circle.
+
+    fill(255);
+    stroke(0);
+    circle(x, circY, segmentSize);
+    x += spacing;
+  }
+
+  // Move the caterpillar  to the right.
+  circX += spacing;
+  // stop the animation  when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+
+### [For 循环](/reference/p5/for)
+
+for 循环可以多次执行一段（或一块）代码。for 循环可以这样写：
+
+```js
+for (let i = 0; i < number; i += 1) { 
+  // 你想执行 number 次的代码
+}
+```
+
+在 for 循环的花括号 `{}` 内，我们编写想要重复执行的代码。我们可以通过设置循环的条件来指定代码重复的次数。
+
+for 循环由括号内的三个表达式定义，每个表达式用分号分隔。它们是：
+
+<AnnotatedLine code={({ bottom }) => `for (${bottom('init', ' let i = 0; ')} ${bottom('cond', 'i < number;')} ${bottom('instr', '  i += 1  ')}) { }`}>
+  <Fragment slot="init">初始化</Fragment>
+  <Fragment slot="cond">条件</Fragment>
+  <Fragment slot="instr">指令</Fragment>
+</AnnotatedLine>
+
+- **初始化**：用一个数字初始化迭代变量 `i`，从该数字开始计数。
+
+  ```js
+  let i = 0;
+  ```
+
+- **条件：** 保持循环运行的条件。只要此条件为真，for 循环就会继续运行。当此条件为 `false` 时，for 循环将停止。
+
+  ```js
+  i < number;
+  ```
+
+- **指令：** 这告诉程序每次循环运行时如何更改计数数字。
+
+  ```js
+  i += 1;
+  ```
+
+第一个表达式 `let i = 0` 初始化或启动 for 循环。
+
+- i 是一个定义 for 循环初始状态的变量。它也被称为*索引*变量。通常，索引从 0 开始，每次循环递增。这个变量的名字可以是任何你喜欢的。一般来说，单字母变量如 `i`、`j` 和 `k` 被使用，但可以随意使用更具描述性的名称。
+
+第二个表达式 `i < number` 是循环继续运行的条件。它被称为布尔表达式，因为这个表达式可以返回 `true` 或 `false`。只要这个表达式为 `true`，for 循环将继续运行，在这种情况下索引变量（`i`）将继续增加。
+
+- `number` 可以是任何数值或存储数值的变量。对于计数，通常使用整数。
+  - 示例：`i < 5;` 或 `i < segments;`
+- 在这种情况下，`number` 决定了 for 循环运行的次数，因为初始值 `i` 从 0 开始。
+- 在上面的毛毛虫示例中，我们将此值设置为 `segments` 变量，它指定组成毛毛虫身体的圆形数量。只要索引没有达到 `segments` 中存储的数字，循环就会继续绘制圆形。
+  - 一旦绘制的圆形数量不再小于 segments，程序就会退出 for 循环，继续执行下一行代码。
+
+第三个表达式 `i += 1` 是索引在每次循环迭代结束时如何变化。
+
+- [**循环迭代**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration)指的是循环运行一次。例如，如果一个 for 循环运行 3 次，它有 3 次迭代。
+- 在这个例子中，`i` 变量每次 for 循环运行时增加 1。这意味着此 for 循环第一次运行时，`i` 是 0。第二次循环运行时，`i` 是 1。第三次运行时，`i` 是 2，依此类推（直到达到值 `number`）。这个表达式 `i += 1` 也可以写成 `i++`。
+
+总结：
+
+1. 当程序执行 for 循环时，它首先在第一个表达式中声明循环的索引变量。
+2. 它检查第二个表达式，这是一个布尔表达式。如果为 `true`，就执行花括号内的代码。
+3. 在循环结束时，迭代变量 `i` 的值按第三个表达式定义的方式改变。
+4. 循环重复此过程，直到第二个表达式中的条件为 `false`。当条件为 `false` 时，程序退出 for 循环并继续执行草图中的下一行代码。
+
+请访问 [for 循环参考](/reference/p5/for) 了解更多信息。
+
+
+### 3.3 – 为毛毛虫添加更多细节
+
+- 如果你愿意，可以调整毛毛虫身体的 `fill()` 颜色。在本例中，我们将给它一个粉色：`fill(255, 0, 200);`
+- 绘制毛毛虫的眼睛。眼睛的位置与为身体绘制的最后一个圆形的 x 和 y 坐标相同。这意味着它出现在 for 循环已经绘制完所有圆形之后，所以我们将在 for 循环之后、`noLoop()` 之前添加眼睛。这确保了眼睛绘制在毛毛虫身体的最后一个圆形之上。
+  - 在 `setup()` 上方将 `eyeSize` 声明为新的全局变量，并赋值为 15。
+  - 绘制两个圆形。
+    - 给它们黑色填充和粗白色描边。
+  - 添加第一只眼睛并设置其坐标和大小：`circle(x, circY-eyeSize, eyeSize);`
+    - 这将眼睛放置在最后绘制的圆形的顶部。
+  - 添加第二只眼睛并设置其坐标和大小：`circle(x - eyeSize, circY-eyeSize, eyeSize);`
+    - 我们从第二只眼睛的 x 坐标中减去 `eyeSize`，使两只眼睛并排而不重叠。
+- 当你的毛毛虫完成后，将你的代码组织到一个名为 `drawCaterpillar()` 的自定义函数中。随意修改毛毛虫！
+  - 在 `draw()` 外部定义 `drawCaterpillar()` 函数。
+  - 该函数应包括毛毛虫身体的圆形 for 循环和毛毛虫眼睛的两个圆形。
+  - 记得在 `draw()` 函数中调用它！在结束循环的 if 语句之前，在 `draw()` 中输入 `drawCaterpillar();`。
+
+到目前为止，你的草图可能看起来像这样：
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  drawCaterpillar();
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillar() {
+  // Create a loop of circles
+  // to form the body.
+  let x = circX;
+
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, circY, segmentSize);
+
+    x+=spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, circY - eyeSize, eyeSize);
+  circle(x - eyeSize, circY - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+通过调整 `bodySize` 和 `eyeSize` 变量，尝试不同的毛毛虫身体和眼睛大小。
+</Callout>
+
+
+## 第 4 步 – 泛化 `drawCaterpillar()` 函数
+
+当草图首次运行时，我们希望每只毛毛虫都在起跑线上。这意味着我们需要向函数添加参数，以便我们可以修改它们来指定毛毛虫绘制的位置。
+
+- 转到 `drawCaterpillar()` 函数。
+  - 在函数的括号中添加 `x` 作为参数：`function drawCaterpillar(x) { ...}`
+    - 注意我们已经在 `drawCaterpillar()` 函数中将 `x` 声明为局部变量。我们可以删除该声明并改用 `x` 参数。
+  - 在函数的括号中添加 `y` 作为第二个参数 `function drawCaterpillar(x,y) { ... }`
+    - 在函数体中用 `y` 替换 `circY`。
+
+你可以在我们之前的教程 [使用函数组织代码](/tutorials/organizing-code-with-functions) 和 p5.js 参考的 [函数](/reference/p5/function) 中了解更多关于自定义函数、参数和实参的知识。
+
+你的自定义函数现在应该看起来类似这样：
+
+```js
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+- 在 `draw()` 中，调用 `drawCaterpillar()` 三次以获得三只毛毛虫
+
+你的 draw 函数应该看起来像这样：
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw 3 caterpillars.
+  drawCaterpillar(circX,circY-150);
+  drawCaterpillar(circX,circY);
+  drawCaterpillar(circX,circY+150);
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+```
+
+
+## 第 5 步 – 创建 `drawCaterpillars()` 函数
+
+现在我们有 3 只毛毛虫同时在屏幕上移动。我们可以使用循环来绘制三只毛毛虫，而不是对 `drawCaterpillar()` 进行三次单独的函数调用。
+
+- 在草图中 `setup()` 上方声明一个新的全局变量，用于你想在比赛中放入的毛毛虫数量：`let numCaterpillars = 3;`
+- 在 `draw()` 外部创建一个新的自定义函数，命名为 `drawCaterpillars()`
+  - 在 `drawCaterpillars()` 函数内创建一个新的 for 循环。
+    - 在循环的第一个表达式中将循环变量初始化为 0。
+    - 在循环的第二个表达式中将条件设置为 `i < numCaterpillars`。
+    - 在第三个表达式中递增循环变量。
+  - 在 for 循环的花括号内调用 `drawCaterpillar(circX, circY);`。
+- 在 `draw()` 中，调用 `drawCaterpillars();`
+
+你的 `draw()` 和 `drawCaterpillars()` 函数应该看起来像这样：
+
+```js
+let numCaterpillars = 3;
+
+// ...变量声明和 setup
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+```
+
+草图应该可以运行，但这次你只会看到一只毛毛虫。这是因为三只毛毛虫都绘制在彼此之上。为了在下一步修复这个问题，我们将调整每只毛毛虫的 y 坐标：
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## 第 6 步 – 为比赛定位毛毛虫
+
+**回顾！** 从第 3 步和第 4 步开始，我们的草图中有两个自定义函数。
+
+- `drawCaterpillar(x,y)` 使用参数 x 和 y 绘制一只毛毛虫。
+- `drawCaterpillars()` 调用 `drawCaterpillar()` 函数并将其放在 for 循环内，以便我们可以绘制多只毛毛虫。
+
+现在，每只毛毛虫都在相同的 x 和 y 坐标上。我们将调整 for 循环中的代码，用 y 坐标将毛毛虫间隔开。
+
+- 转到 `drawCaterpillars()` 函数声明。
+  - 在 *for 循环* 内，添加一行新代码：`let padding = height / numCaterpillars;`
+    - 这声明了一个名为 `padding` 的新变量，它决定了每只毛毛虫之间的垂直间距。
+    - 我们将画布的 `height` 除以毛毛虫数量的值赋给它。这将画布垂直分成行（每只毛毛虫一行）。每行的高度就是 `padding` 的值。
+  - 用以下值初始化变量 `y`：`let y = (i + 0.5) * padding`，其中 `y` 决定每只毛毛虫的 y 坐标。
+    - 使用 `i` 变量，for 循环的每次迭代将一只毛毛虫定位在自己的行中
+    - 将 0.5 加到 `i` 使毛毛虫居中在该行。
+- 类似于第 5 步，在 `drawCaterpillar()` 函数调用的括号中添加 `y` 作为实参。
+  - 代码行现在应该是：`drawCaterpillar(circX, y);`
+
+总结来说，我们已将 `x` 和 `y` 作为参数分配给 `drawCaterpillar()` 函数内部使用。我们在 `drawCaterpillars()` 中调用此函数时使用 `circX` 和 `y` 作为实参。
+
+你可以在我们之前的教程 [使用函数组织代码](/tutorials/organizing-code-with-functions) 中了解更多关于自定义函数、实参和参数的知识。
+
+到目前为止，你的 `drawCaterpillars()` 函数应该看起来像这样：
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    let padding = height/numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    drawCaterpillar(circX, y, 6);
+  }
+}
+```
+
+
+### 使用 for 循环索引变量进行绘制
+
+for 循环的索引变量（`i`）可以在每次循环迭代中逐步增加或减少。在本教程中，`i` 变量从 0 开始，每次 *for 循环* 运行时增加 1。
+
+- 此 for 循环第一次运行时，`i` 是 0。
+- 第二次循环运行时，`i` 是 1。
+- 第三次运行时，`i` 是 2，依此类推。
+
+我们可以在绘图中使用索引变量来加、减、乘和除数字，使它们的结果在 for 循环的每次迭代中不同。
+
+在这个例子中，我们使用 `i` 来计算每只毛毛虫之间的一致间距（参见下表）：
+
+- 在第一次迭代中，`i` 是 0，`y` 是 `0.5 * padding`。第一只毛毛虫以该 y 值绘制。
+- 在第二次迭代中，`i` 是 1，`y` 变为 `1.5 * padding`。第二只毛毛虫在新的 y 值处绘制。
+- 在第三次迭代中，`i` 是 2，`y` 变为 `2.5 * padding`。第三只毛毛虫在新的 y 值处绘制。
+
+<table>
+
+<tr>
+
+<th>
+
+毛毛虫（循环迭代）
+
+</th>
+
+<th>
+
+`x`
+
+</th>
+
+<th>
+
+`y`
+
+</th>
+
+</tr>
+
+<tr>
+
+<td>
+
+第一只
+
+</td>
+
+<td>
+
+0
+
+</td>
+
+<td>
+
+`0.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+第二只
+
+</td>
+
+<td>
+
+1
+
+</td>
+
+<td>
+
+`1.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+第三只
+
+</td>
+
+<td>
+
+2
+
+</td>
+
+<td>
+
+`2.5 * padding`
+
+</td>
+
+</tr>
+
+</table>
+
+`drawCaterpillar()` 和 `drawCaterpillars()` 现在应该看起来像这样：
+
+```js
+// ... 变量声明、setup() 和 draw()
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+所有代码放在一起应该是这样的：
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+更改全局变量 `numCaterpillars` 的值，看看 `drawCaterpillars()` 中的 for 循环如何在画布上垂直地间隔它们。
+</Callout>
+
+
+## 第 7 步 – 创建数组来保存每只毛毛虫的位置
+
+现在我们已经在画布上垂直定位了毛毛虫，我们想给每只毛毛虫一个唯一的 x 坐标。我们可以使用数组来实现这一点。数组将包含每只毛毛虫的 x 坐标。然后我们可以随机移动毛毛虫穿过屏幕，使比赛成为可能。
+
+
+### 7.1 – 创建一个[数组](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+
+- 在 `numCaterpillars` 之后立即声明 `caterpillarEnds` 数组：`let caterpillarEnds = [];`
+  - 此数组将保存每只毛毛虫最左边节段的 x 位置。
+
+
+你将在下一个教程 [数据结构花园](/tutorials/data-structure-garden) 中了解更多关于数组的知识。请访问 MDN 参考的[数组](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)了解更多信息。
+
+- 在 `setup()` 中，为每只毛毛虫添加 x 坐标，将它们都放在起跑线上。
+  - 创建一个 for 循环，为每只毛毛虫重复一次：`for (let i=0; i < numCaterpillars; i++) { }`
+  - 在花括号内，添加行 `caterpillarEnds.push(startLine);`
+    - 这将为草图中需要绘制的每只毛毛虫向 `caterpillarEnds` 数组添加一次 `startLine` 的值。
+    - `.push()` 方法用于在数组末尾添加新值。
+
+现在 `setup()` 应该看起来像这样：
+
+```js
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(6);
+
+  for (let i=0; i < numCaterpillars; i++) {
+    //add the position of last segment into an array
+    caterpillarEnds.push(startLine);
+  }
+}
+```
+
+- 在 `drawCaterpillars()` 函数中，更改行 `drawCaterpillar(circX,y)`：
+  - 我们现在将使用 `caterpillarEnds` 数组中的值代替 `circX`。
+  - 由于 for 循环中的索引 `i` 代表 `caterpillarEnds` 数组中正确的索引位置，我们可以将 `circX` 更改为 `caterpillarEnds[i]`：`drawCaterpillar(caterpillarEnds[i], y);`
+- 从函数中删除 `circX`。
+  - 注意：`circX` 仍在 `draw()` 的末尾使用。继续删除它，我们稍后会将其添加回来。
+
+你的 `drawCaterpillars()` 函数应该看起来像这样：
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {  
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw caterpillars using an array.
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+```
+
+
+### 7.2 – 随机移动毛毛虫
+
+- 在 `draw()` 外部创建一个新的自定义函数并命名为 `moveCaterpillars()`
+- 定义一个新的 for 循环，迭代次数与毛毛虫数量相同：`for (let i = 0; i < numCaterpillars; i += 1) { }`
+  - 这与 `drawCaterpillars()` 函数中使用的 for 循环语法相同，因为它允许你单独引用每只毛毛虫。
+- 在循环内，为 `move` 分配一个局部随机值：
+
+  ```js
+  let move = random(5,30);
+  ```
+
+- 一旦比赛开始，这将在每次 `draw()` 运行时将每只毛毛虫随机向右移动 5 到 30 像素。
+- 你可以根据你想要的毛毛虫运动范围修改 `random()` 中的值。请访问 [p5.js 参考的 `random()`](/reference/p5/random) 了解更多信息。
+
+你的函数可能看起来像这样：
+
+```js
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+    caterpillarEnds[i] += move;
+  }
+}
+```
+
+总结，上面函数中的事件顺序是：
+
+- 对于每次循环迭代，我们将 `move` 赋值为 5 到 30 之间的随机数。
+  - 这意味着每只毛毛虫被分配了不同的随机 `move`。
+- 然后我们更新 `caterpillarEnds` 数组中第 `i` 个位置的值，这是 `drawCaterpillar()` 函数用来显示毛毛虫的值。
+
+
+### 7.3 – 移动毛毛虫
+
+- 最后，在 `draw()` 中 `drawCaterpillars()` 函数调用之前调用 `moveCaterpillars()` 函数。
+
+你的代码应该看起来像这样！
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+let segments = 6;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  
+  // Make changes to caterpillars' positions.
+  moveCaterpillars();
+
+  // Draws caterpillars in their new positions.
+  drawCaterpillars();
+}
+
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar their
+    // own x-coordinates.
+
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing; // Change x for next circle.
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## 第 8 步 – 给毛毛虫一个爬行动作
+
+为了模拟"爬行"运动，我们将使用 `random()` 函数随机化每只毛毛虫的节段数。回顾一下，全局 `segments` 变量决定了毛毛虫显示的节段数。我们现在将其改为 `drawCaterpillar()` 函数中的参数。
+
+- 转到 `drawCaterpillar()` 函数定义。
+  - 添加一个名为 `segments` 的新参数。现在应该看起来像这样：`function drawCaterpillar(x, y, segments) { ... }`
+  - 你可以删除草图顶部的 `segments` 全局变量。
+- 转到 `drawCaterpillars()` 函数定义。
+  - 在调用 `drawCaterpillar()` 函数的括号中添加 `crawl` 作为第三个实参：`drawCaterpillar(x, y, crawl);`
+  - 在这行上方，通过输入以下内容为 `crawl` 变量分配一个新的随机值：`let crawl = round(random(3, 6));`
+    - 这意味着在草图运行时，程序将在将毛毛虫从起跑线移动到终点线的同时，以随机长度（3 到 6 个圆形之间）连续绘制毛毛虫。
+    - 你可以根据你想要毛毛虫爬行的长短修改 `random()` 中的值。
+    - `crawl` 变量的随机值将填充 `drawCaterpillar()` 函数定义中的 `segments` 参数，该参数决定了绘制多少个圆形。
+
+你的函数应该看起来像这样：
+
+```js
+// ... 变量声明、setup()、draw()、moveCaterpillars() 函数
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    let crawl = round(random(3, 6));
+
+    // Draw caterpillars.
+    drawCaterpillar(x, y, crawl);
+  }
+}
+
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+## 第 9 步 – 使用鼠标触发器开始比赛
+
+- 声明一个名为 `isRacing` 的新布尔全局变量并将其设置为 `false`：`let isRacing = false`;
+  - 此变量将作为状态变量，以布尔值（`true` 或 `false`）存储毛毛虫是否正在比赛的信息。
+- 定义一个 `mousePressed()` 函数。
+  - 在函数中，将 `isRacing` 布尔值设置为 `true`。
+- 函数应该看起来像这样：
+
+  ```js
+  // Start the race when the
+  // user presses the mouse.
+  function mousePressed() {
+    isRacing = true;
+  }
+  ```
+
+- 在 `draw()` 函数中，在 `drawCaterpillars()` 函数调用之前创建一个新的 if 语句：`if (isRacing === true) { }`
+- 将 `moveCaterpillars()` 函数调用移到 if 语句中。
+  - 这意味着毛毛虫只有在比赛开始后（鼠标按下后）才会开始移动。
+- 你的代码应该看起来像这样：
+
+```js
+// ... define global variables
+
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  }
+
+  drawCaterpillars();
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// ... moveCaterpillars, drawCaterpillars, and drawCaterpillar functions.
+```
+
+
+## 第 10 步 – 为比赛的开始和结束添加消息
+
+做得好！在草图的这个阶段，你有了一个通过鼠标点击开始的毛毛虫比赛。
+
+现在，我们只需要在画布上添加如何使用程序的说明。我们还将在比赛结束时添加一条消息来宣布获胜的毛毛虫，这将是随机的。我们将添加回 noLoop() 函数，以便在宣布获胜者时结束比赛。
+
+
+### 10.1 – 写一条开始消息
+
+- 在 `draw()` 之后创建一个新的自定义函数并命名为 `writeStart()`。
+- 在函数内部，添加：`text(" 🏁 Click to start!", width / 2, height / 2);`
+  - 这写下说明文字并将其放置在画布中央。
+  - 通过在 `text()` 命令上方添加 `textAlign(CENTER);` 将文本对齐到中心。
+  - 为文本添加样式。在本例中，我们将给它白色、无描边和 24 的文本大小。
+- 你的 `writeStart()` 函数应该看起来像这样：
+
+  ```js
+  function writeStart() {
+   
+    // Style the text.
+    textSize(24);
+    textAlign(CENTER);
+    fill(255);
+    noStroke();
+   
+    // Display the message.
+    text("🏁 Click to start!", width / 2, height / 2);
+  }
+  ```
+
+- 回到 `draw()` 函数并添加一个 else 语句：`else {}`
+  - 如果比赛尚未开始，将执行此 else 语句
+- 在此 else 语句代码块内调用 `writeStart()` 函数。
+
+`draw()` 函数应该看起来像这样：
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // If the race hasn't started,
+    // write instructions to start.
+    writeStart();
+  }
+
+  //draw caterpillars at new position
+  drawCaterpillars();
+}
+```
+
+
+### 10.2 – 检查获胜者并显示谁赢了。
+
+我们需要检查是否有一只毛毛虫获胜了。如果是，我们需要显示该信息并结束比赛。
+
+- 在 `draw()` 下方创建一个新函数来检查获胜者：`function checkWinner() {}`
+- 在函数的花括号内，写一个 for 循环来检查每只毛毛虫的 x 值，看它们是否赢了：`for (let i = 0; i < caterpillarEnds.length; i += 1) {}`
+- 在 for 循环花括号内，包括一个 if 语句来查看每只毛毛虫是否越过了终点线：`if (caterpillarEnds[i] >= finishLine) {}`
+- 在此 if 语句内，使用模板字面量动态地将获胜者写入文本：
+
+  ```js
+  text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+  ```
+
+  - 这动态地写入显示获胜毛毛虫索引的文本。由于索引从 0 开始，通常我们从 1 开始数毛毛虫，所以我们在 `i` 的值上加了 1
+  - 类似于第 9.1 步，通过添加 `textAlign(CENTER);` 将文本对齐到中心并为文本添加样式。
+- 在 if 语句内还包括 `noLoop()` 函数以使 `draw()` 停止运行。
+
+你的 `checkWinner()` 函数可以看起来像这样：
+
+```js
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+
+      noLoop();
+    }
+  }
+}
+```
+
+你的最终草图应该看起来像这样：
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+
+// Set a default state
+// before the race begins.
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+ 
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background,
+  // start, and finish line.
+  background(121, 96, 76);
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // if the race hasn't started
+    // instructions on start screen
+    writeStart();
+  }
+
+  // Draw caterpillars at
+  // the starting line.
+  drawCaterpillars();
+ 
+  // Check if there is a winner
+  checkWinner();
+}
+
+// Draw a message at the
+// start of the race.
+function writeStart() {
+  // Style the text.
+  textSize(24);
+  textAlign(CENTER);
+  fill(255);
+  noStroke();
+
+  // Display the message.
+  text("🏁 Click to start!", width / 2, height / 2);
+}
+
+// Draw one caterpillar.
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+
+// Draw all the caterpillars.
+function drawCaterpillars() {
+  let padding = height / numCaterpillars;
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate  
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    crawl = random(3, 6);
+
+    // Draw caterpillars.
+    drawCaterpillar(caterpillarEnds[i], y, crawl);
+  }
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// Move the caterpillars.
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar a random
+    // speed once the race has started.
+    let move = round(random(5, 30));
+  
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+// Display a message and stop the
+// sketch if there's a winner.
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(\`Caterpillar \${i + 1} wins!\`,width/2,height/2);
+
+      // end race by stopping draw() from running
+      noLoop();
+    }
+  }
+}
+`} />
+
+## 总结
+
+恭喜你完成了这个教程！你现在已经学会了如何在 p5.js 中使用循环生成多个移动的形状。请访问 [p5.js 参考](/reference) 或之前的教程来了解更多关于[条件语句、交互性、](/tutorials/conditionals-and-interactivity)[变量](/tutorials/variables-and-change)和[函数](/tutorials/organizing-code-with-functions)的内容。
+
+
+## 下一步
+
+- 下一个教程：[数据结构花园](/tutorials/data-structure-garden)
+
+
+## 参考资料
+
+- [在你的代码中做决定 - MDN](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/conditionals)
+- [循环和迭代 - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration)
+- [数组 - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+  - [`.push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push)

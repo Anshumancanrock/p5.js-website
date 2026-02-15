@@ -1,0 +1,1419 @@
+---
+title: "Repetición con Bucles"
+description: "¡Crea una carrera de orugas reptantes usando bucles y arreglos!"
+category: introduction
+categoryIndex: 5
+featuredImage: ../images/featured/loops.png
+featuredImageAlt: Tres orugas rosadas con ojos saltones en la línea de salida esperan la carrera con el texto "Haz clic para comenzar".
+authors:
+  - Joanne Amarisa
+  - Layla Quiñones
+  - Greg Benedis-Grab
+---
+
+import EditableSketch from "../../../components/EditableSketch/index.astro";
+import Callout from "../../../components/Callout/index.astro";
+import AnnotatedLine from "../../../components/AnnotatedLine/index.astro";
+
+## Introducción
+
+¿Alguna vez quisiste llevar tus proyectos al siguiente nivel dibujando muchas formas con solo unas pocas líneas de código? Imagina dibujar una fila de árboles, una pila de libros, los arcos de un arcoíris o el interior de un panal de abejas. Para crear elementos visuales que están hechos con versiones de la misma forma, vamos más allá de codificar formas individuales y nos aventuramos en el maravilloso mundo de los bucles y los arreglos. ¡Aprendamos cómo crear patrones repetitivos con solo unas pocas líneas de código!
+
+![Una forma de arco y hexágono están alineadas verticalmente con la etiqueta que dice "objeto único". Las flechas apuntan desde estas formas a patrones correspondientes que están alineados verticalmente bajo una etiqueta que dice "objetos multiplicados". El arco único apunta a cinco arcos apilados verticalmente creando una forma de arcoíris. El hexágono apunta a muchos hexágonos dispuestos en un teselado de panal.](../images/introduction/loops-intro.png)
+
+Dibujar cada forma con una nueva línea de código sería un proceso tedioso. En su lugar, podemos usar *bucles*, que nos permiten ejecutar y repetir bloques de código tantas veces como queramos. En este tutorial, usamos bucles y arreglos para crear [un boceto de carrera de orugas](https://editor.p5js.org/gbenedis@gmail.com/sketches/BrmtZ36ET).
+
+![Tres orugas rosadas reptando para alcanzar una línea de meta verde a la derecha del lienzo.](../images/introduction/caterpillar-race-end.gif)
+
+Un grupo de orugas comenzará en la línea de salida de la carrera, y la primera oruga en cruzar la línea de meta gana. ¡La oruga ganadora variará cada vez que ejecutemos el boceto!
+
+En este tutorial, vas a:
+
+- Dibujar y actualizar tareas y formas repetitivas usando *bucles for*
+- Usar funciones personalizadas para actualizar variables y estados del programa y hacer cambios en el programa mientras se ejecuta el boceto.
+- Usar [sentencias condicionales](/reference/p5/if) y `random()` para generar diferentes resultados
+- Ejecutar y detener tu boceto usando disparadores de ratón y [variables booleanas](/reference/p5/Boolean)
+- Almacenar las posiciones de las orugas en un arreglo
+
+### Lo que necesitarás
+
+- El [Editor Web de p5.js](https://editor.p5js.org/)
+- Comprensión del dibujo de formas básicas y texto en p5.js usando coordenadas x e y
+  - Puedes consultar nuestro tutorial anterior, [Primeros Pasos](/tutorials/get-started)
+- Comprensión de variables y condicionales
+  - Puedes consultar nuestros tutoriales anteriores, [Variables y Cambio](/tutorials/variables-and-change/) y [Condicionales e Interactividad](/tutorials/conditionals-and-interactivity)
+- Comprensión de funciones personalizadas y parámetros
+  - Puedes consultar nuestro tutorial anterior, [Organizando Código con Funciones](/tutorials/organizing-code-with-functions)
+
+
+## Paso 1 – Dibujar la pista de carreras
+
+- Abre un nuevo proyecto en el [Editor Web de p5.js](https://editor.p5js.org/), dale un nombre como "Carrera de Orugas" y guárdalo.
+- En `setup()`, crea un lienzo de 500x500 píxeles.
+- Declara dos nuevas variables globales encima de `setup()` para definir las coordenadas x de tu línea de salida y línea de meta respectivamente. Nombraremos las dos variables startLine y finishLine.
+  - Asígnales valores en el eje x, dependiendo de dónde quieras colocar tus líneas de salida y meta. En este ejemplo, estableceremos startLine en 30 y finishLine en 360.
+- En la función `draw()`:
+  - Establece un color de fondo. Por ejemplo, lo estableceremos en marrón con `background(121, 96, 76)`;
+  - Dibuja un rectángulo y establece su coordenada x como `startLine`. Establece su altura a `height` para que se extienda verticalmente a través del lienzo.
+  - Dibuja otro rectángulo en `finishLine` y repite el mismo paso.
+  - Rellena los dos rectángulos con diferentes colores.
+- No olvides nombrar y guardar tu boceto.
+
+Tu código podría verse así:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+function setup() {
+  // 500x500 canvas
+  createCanvas(500, 500); 
+}
+
+function draw() {
+  //set background color
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+}
+`} />
+
+## Paso 2 – Dibujar un segmento de oruga y hacerlo mover.
+
+A continuación, dibujaremos un segmento de una oruga en el lienzo y lo haremos viajar desde la línea de salida hasta la línea de meta. Se detendrá al final de la carrera.
+
+- Declara una nueva variable global llamada `circX` y asígnale el valor de `startLine`.
+  - Esta será la coordenada x del segmento de la oruga.
+- Declara una nueva variable global llamada `circY` y asígnale el valor de 250 (o la mitad de la altura).
+  - Esta será la coordenada y del segmento de la oruga.
+- En `draw()`:
+  - Dibuja el segmento de la oruga usando la función `circle()`. Incluye `circX`, `circY` y 50 como argumentos para especificar la coordenada x, la coordenada y y el diámetro: `circle(circX, circY, 50);`
+  - También le daremos al círculo un color de relleno blanco y un trazo negro delgado.
+  - Debajo del comando circle, incrementa `circX` en 20 usando `circX += 20;`
+    - Esto significa que cada vez que se ejecuta la función `draw()`, la variable `circX` aumentará en 20 píxeles. El boceto dibujará un nuevo círculo en una coordenada x 20 píxeles a la derecha del círculo anterior creando la forma de una oruga.
+- Agrega la siguiente sentencia condicional al final de `draw()`:
+
+  ```js
+  if (circX > finishLine) {
+    noLoop();
+  }
+  ```
+
+La función `noLoop()` detiene la ejecución de la función `draw()`. La sentencia `if` detiene `draw()` usando `noLoop()` cuando la coordenada x del círculo supera el valor de finishLine. Visita la referencia de p5.js para más información sobre [`noLoop()`](/reference/p5/noLoop).
+
+En `setup()`, agrega: `frameRate(3);`
+
+- Un [frame rate](/reference/p5/frameRate) es el número de veces que `draw()` se ejecuta en un segundo. Establecerlo en un número bajo hará que los movimientos sean más notorios y dramáticos para esta animación.
+
+Tu código debería verse así:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables to draw circles starting point.
+let circX = startLine;
+
+let circY = 250;
+
+function setup() {
+  createCanvas(500, 500); 
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw a circle.
+  fill(255);
+  stroke(0);
+  circle(circX, circY, 50);
+
+  // Move the x-coordinate
+  // to the right.
+  circX += 20;
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+### [Sentencias if](/reference/p5/if)
+
+Las sentencias if, como la aplicada anteriormente, se refieren a bloques de código que se ejecutan solo cuando una condición dada es verdadera. Normalmente se escriben:
+
+```js
+if (<condición>) {
+  <código>
+}
+```
+
+La condición se especifica dentro de los paréntesis de la sentencia if. Las llaves `{ }` marcan el inicio y el final del bloque de código. En el Paso 2, la condición `circX > finishLine` detiene la ejecución de `draw()` cuando la coordenada x del círculo es mayor que el valor de `finishLine` llamando a `noLoop()`.
+
+Visita la referencia de p5.js para [if](/reference/p5/if) para aprender más.
+
+
+## Paso 3 – Dibujar una oruga
+
+Repetiremos el segmento de oruga del Paso 2 para hacer una fila de círculos que forman el cuerpo de la oruga. Usaremos un *bucle for* para dibujar múltiples círculos en una fila.
+
+
+### 3.1 – Declarar las propiedades del cuerpo de la oruga
+
+Encima de `setup()`:
+
+- Declara una nueva variable llamada `segments` y asígnale un valor de 6.
+  - Esta variable define cuántos círculos componen el cuerpo de la oruga.
+- Declara una nueva variable llamada `spacing` y asígnale un valor de 20.
+  - Esta variable define el espaciado en píxeles entre los segmentos del cuerpo de la oruga.
+- Declara una nueva variable llamada `segmentSize` y asígnale un valor de 50.
+  - Esta variable define el diámetro de los segmentos circulares del cuerpo.
+
+
+### 3.2 – Construir el cuerpo de la oruga con un *bucle for*
+
+En `draw()`:
+
+- Después del código que dibuja la línea de meta, declara una nueva variable local `x` para posicionar todos los segmentos del cuerpo: `let x = circX;`
+- Agrega un *bucle for* usando: `for (let i = 0; i < segments; i += 1) { }`
+  - Un *bucle for* repetirá el código que escribimos dentro de las llaves múltiples veces.
+  - Mueve las líneas de código que dibujan el `circle()` dentro de las llaves del *bucle for*.
+- Después del bucle for, agrega: `circX += spacing`
+  - Esto mueve el cuerpo de la oruga hacia la derecha cada vez que se ejecuta `draw()`.
+
+Tu código debería verse así:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // a local variable to position the body segments
+  let x = circX;
+
+  // draw multiple circles (caterpillar body)
+  for (let i = 0; i < segments; i += 1) {
+    // Draw a circle.
+
+    fill(255);
+    stroke(0);
+    circle(x, circY, segmentSize);
+    x += spacing;
+  }
+
+  // Move the caterpillar  to the right.
+  circX += spacing;
+  // stop the animation  when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+
+### [Bucles for](/reference/p5/for)
+
+Un bucle for puede ejecutar una sección (o bloque) de código múltiples veces. Los bucles for se pueden escribir así:
+
+```js
+for (let i = 0; i < number; i += 1) { 
+  // código que quieres ejecutar number veces
+}
+```
+
+Dentro de las llaves `{}` de un bucle for, escribimos el código que queremos ejecutar repetidamente. Podemos especificar el número de veces que queremos que el código se repita estableciendo la condición del bucle.
+
+Un bucle for se define por tres expresiones dentro de sus paréntesis, cada una separada por punto y coma. Son:
+
+<AnnotatedLine code={({ bottom }) => `for (${bottom('init', ' let i = 0; ')} ${bottom('cond', 'i < number;')} ${bottom('instr', '  i += 1  ')}) { }`}>
+  <Fragment slot="init">Inicialización</Fragment>
+  <Fragment slot="cond">Condición</Fragment>
+  <Fragment slot="instr">Instrucción</Fragment>
+</AnnotatedLine>
+
+- **Inicialización**: inicializa la variable de iteración `i` con un número para comenzar a contar.
+
+  ```js
+  let i = 0;
+  ```
+
+- **Condición:** la condición que mantiene el bucle en ejecución. Mientras esta condición sea verdadera, el bucle for continuará ejecutándose. Cuando esta condición sea `false`, el bucle for se detendrá.
+
+  ```js
+  i < number;
+  ```
+
+- **Instrucción:** esto le dice al programa cómo cambiar el número de conteo cada vez que se ejecuta el bucle.
+
+  ```js
+  i += 1;
+  ```
+
+La primera expresión, `let i = 0`, inicializa o comienza el bucle for.
+
+- i es una variable que define el estado inicial del bucle for. También se conoce como la variable de *índice*. Comúnmente, el índice comienza en un valor de 0 y aumenta en cada ciclo. El nombre de esta variable puede ser cualquiera que desees. Generalmente, se usan variables de una sola letra como `i`, `j` y `k`, pero siéntete libre de usar algo más descriptivo.
+
+La segunda expresión, `i < number`, es la condición para que el bucle siga ejecutándose. Se conoce como una expresión booleana, ya que esta expresión puede devolver `true` o `false`. Mientras esta expresión sea `true`, el bucle for continuará ejecutándose, y en este caso la variable de índice (`i`) continuará aumentando.
+
+- `number` puede ser cualquier valor numérico o variable que almacene un valor numérico. Para contar, a menudo se usan enteros.
+  - Ejemplo: `i < 5;` o `i < segments;`
+- En este caso, `number` determina el número de veces que se ejecutará el bucle for porque el valor inicial `i` comienza en 0.
+- En el ejemplo de la oruga anterior, establecemos este valor a la variable `segments`, que especifica el número de círculos que forman el cuerpo de la oruga. Mientras el índice no haya alcanzado el número almacenado en `segments`, el bucle continuará dibujando círculos.
+  - Una vez que el número de círculos dibujados ya no es menor que segments, el programa sale del bucle for y continúa a la siguiente línea de código.
+
+La tercera expresión, `i += 1`, es cómo cambiará el índice al final de cada iteración del bucle.
+
+- Una [**iteración de bucle**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration) se refiere a una sola vez que se ejecuta un bucle. Por ejemplo, si un bucle for se ejecuta 3 veces, tiene 3 iteraciones.
+- En este ejemplo, la variable `i` aumentará en 1 cada vez que se ejecute el bucle for. Eso significa que la primera vez que se ejecuta este bucle for, `i` es 0. La segunda vez que se ejecuta el bucle, `i` es 1. La tercera vez que se ejecuta, `i` es 2, y así sucesivamente (hasta que alcance el valor `number`). Esta expresión `i += 1` también se puede escribir `i++`.
+
+En resumen:
+
+1. Cuando un programa ejecuta un bucle for, primero declara la variable de índice del bucle en la primera expresión.
+2. Verifica la segunda expresión, que es una expresión booleana. Si es `true`, ejecuta el código escrito dentro de las llaves.
+3. Al final de un bucle, el valor de la variable de iteración, `i`, cambia como se define en la tercera expresión.
+4. El bucle repite este proceso hasta que la condición en la segunda expresión sea `false`. Cuando la condición es `false`, el programa sale del bucle for y continúa a las siguientes líneas de código en el boceto.
+
+Visita la [referencia de bucles for](/reference/p5/for) para aprender más.
+
+
+### 3.3 – Agregar más detalles a la oruga
+
+- Ajusta el color `fill()` del cuerpo de tu oruga si lo deseas. En este ejemplo, le daremos un color rosado: `fill(255, 0, 200);`
+- Dibuja los ojos de la oruga. La posición de los ojos es la misma que las coordenadas x e y del último círculo dibujado para el cuerpo. Esto significa que viene DESPUÉS de que el bucle for ya haya dibujado todos los círculos, así que agregaremos los ojos después del bucle for, pero antes de `noLoop()`. Esto asegura que los ojos se dibujen encima del último círculo en el cuerpo de la oruga.
+  - Declara `eyeSize` como una nueva variable global encima de `setup()` y asígnale el valor de 15.
+  - Dibuja dos círculos.
+    - Dales un relleno negro y un trazo blanco grueso.
+  - Agrega el primer ojo y establece sus coordenadas y tamaño: `circle(x, circY-eyeSize, eyeSize);`
+    - Esto coloca el ojo en la parte superior del último círculo dibujado.
+  - Agrega el segundo ojo y establece sus coordenadas y tamaño: `circle(x - eyeSize, circY-eyeSize, eyeSize);`
+    - Restamos la coordenada x del segundo ojo por `eyeSize` para que ambos ojos estén uno al lado del otro sin superposición.
+- Cuando tu oruga esté completa, organiza tu código en una función personalizada llamada `drawCaterpillar()`. ¡Siéntete libre de modificar la oruga como desees!
+  - Define la función `drawCaterpillar()` fuera de `draw()`.
+  - La función debe incluir tu bucle for de círculos para el cuerpo de la oruga y los dos círculos para los ojos de la oruga.
+  - ¡Recuerda llamarla en la función `draw()`! Escribe `drawCaterpillar();` en `draw()` antes de la sentencia if que termina el bucle.
+
+Así es como podría verse tu boceto hasta ahora:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  drawCaterpillar();
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillar() {
+  // Create a loop of circles
+  // to form the body.
+  let x = circX;
+
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, circY, segmentSize);
+
+    x+=spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, circY - eyeSize, eyeSize);
+  circle(x - eyeSize, circY - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+Juega con diferentes tamaños para el cuerpo y los ojos de la oruga ajustando las variables `bodySize` y `eyeSize`.
+</Callout>
+
+
+## Paso 4 – Generalizar la función `drawCaterpillar()`
+
+Cuando el boceto se ejecuta por primera vez, queremos que cada oruga esté en la línea de salida. Esto significa que necesitaremos agregar parámetros a nuestra función para que podamos modificarlos y especificar dónde se dibujan las orugas.
+
+- Ve a la función `drawCaterpillar()`.
+  - Agrega `x` como parámetro en los paréntesis de la función: `function drawCaterpillar(x) { ...}`
+    - Ten en cuenta que ya habíamos declarado `x` como una variable local en la función `drawCaterpillar()`. Podemos eliminar esa declaración y usar el parámetro `x` en su lugar.
+  - Agrega `y` como segundo parámetro en los paréntesis de la función `function drawCaterpillar(x,y) { ... }`
+    - Sustituye `y` por `circY` en el cuerpo de la función.
+
+Puedes aprender más sobre funciones personalizadas, argumentos y parámetros en nuestro tutorial anterior, [Organizando Código con Funciones](/tutorials/organizing-code-with-functions), y la referencia de p5.js para [funciones](/reference/p5/function).
+
+Tu función personalizada ahora debería verse similar a esto:
+
+```js
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+- En `draw()`, llama a `drawCaterpillar()` tres veces para obtener tres orugas
+
+Tu función draw debería verse así:
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw 3 caterpillars.
+  drawCaterpillar(circX,circY-150);
+  drawCaterpillar(circX,circY);
+  drawCaterpillar(circX,circY+150);
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+```
+
+
+## Paso 5 – Crear una función `drawCaterpillars()`
+
+Ahora tenemos 3 orugas viajando por la pantalla al mismo tiempo. Podemos usar un bucle para dibujar las tres orugas en lugar de tres llamadas individuales a la función `drawCaterpillar()`.
+
+- Declara una nueva variable global encima de `setup()` en tu boceto para el número de orugas que quieres en la carrera: `let numCaterpillars = 3;`
+- Crea una nueva función personalizada fuera de `draw()` y nómbrala `drawCaterpillars()`
+  - Haz un nuevo bucle for dentro de la función `drawCaterpillars()`.
+    - Inicializa y comienza la variable del bucle en 0 en la primera expresión del bucle.
+    - Establece la condición a `i < numCaterpillars` en la segunda expresión del bucle.
+    - Incrementa la variable del bucle en la tercera expresión.
+  - Llama a `drawCaterpillar(circX, circY);` dentro de las llaves del bucle for.
+- En `draw()`, llama a `drawCaterpillars();`
+
+Tus funciones `draw()` y `drawCaterpillars()` deberían verse así:
+
+```js
+let numCaterpillars = 3;
+
+// ...declaraciones de variables y setup
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+```
+
+El boceto debería ejecutarse, pero solo verás una oruga esta vez. Esto se debe a que las tres orugas están dibujadas unas sobre otras. Para arreglar esto en el siguiente paso, ajustaremos la coordenada y de cada oruga:
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## Paso 6 – Posicionar las orugas para la carrera
+
+**¡Recapitulación!** De los Pasos 3 y 4, tenemos dos funciones personalizadas en nuestro boceto.
+
+- `drawCaterpillar(x,y)` dibuja una oruga usando los parámetros x e y.
+- `drawCaterpillars()` llama a la función `drawCaterpillar()` y la coloca dentro de un bucle for para que podamos dibujar múltiples orugas.
+
+Ahora, cada oruga está en las mismas coordenadas x e y. Ajustaremos el código en el bucle for para espaciar las orugas con la coordenada y.
+
+- Ve a la declaración de la función `drawCaterpillars()`.
+  - Dentro del *bucle for*, agrega una nueva línea de código: `let padding = height / numCaterpillars;`
+    - Esto declara una nueva variable llamada `padding` que determina el espacio vertical entre cada oruga.
+    - Le asignamos el valor de la `height` del lienzo, dividido por el número de orugas en el boceto. Esto divide el lienzo verticalmente en filas (una para cada oruga). La altura de cada fila es el valor de `padding`.
+  - Inicializa la variable `y` asignándole este valor: `let y = (i + 0.5) * padding`, donde `y` determina la coordenada y de cada oruga.
+    - Usando la variable `i`, cada iteración del bucle for posiciona una oruga en su propia fila
+    - Sumar 0.5 a `i` centra la oruga en esa fila.
+- Similar al Paso 5, agrega `y` como argumento en los paréntesis de la llamada a la función `drawCaterpillar()`.
+  - La línea de código ahora debería ser: `drawCaterpillar(circX, y);`
+
+En resumen, hemos asignado `x` e `y` como parámetros para ser usados dentro de la función `drawCaterpillar()`. Usamos `circX` e `y` como argumentos al llamar esta función en `drawCaterpillars()`.
+
+Puedes aprender más sobre funciones personalizadas, argumentos y parámetros en nuestro tutorial anterior, [Organizando Código con Funciones](/tutorials/organizing-code-with-functions).
+
+Tu función `drawCaterpillars()` debería verse así hasta ahora:
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    let padding = height/numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    drawCaterpillar(circX, y, 6);
+  }
+}
+```
+
+
+### Dibujar con variables de índice de bucles for
+
+La variable de índice de un bucle for (`i`) puede aumentar o disminuir incrementalmente con cada iteración del bucle. En este tutorial, la variable `i` comienza en 0 y aumenta en 1 cada vez que se ejecuta el *bucle for*.
+
+- La primera vez que se ejecuta este bucle for, `i` es 0.
+- La segunda vez que se ejecuta el bucle, `i` es 1.
+- La tercera vez que se ejecuta, `i` es 2, y así sucesivamente.
+
+Podemos usar variables de índice en nuestros dibujos para sumar, restar, multiplicar y dividir números para que su resultado sea diferente en cada iteración del bucle for.
+
+En este ejemplo, usamos `i` para calcular un espaciado consistente entre cada oruga (ver tabla a continuación):
+
+- Durante la primera iteración `i` es 0 e `y` es `0.5 * padding`. La primera oruga se dibuja con ese valor de y.
+- Durante la segunda iteración, `i` es 1 e `y` se convierte en `1.5 * padding`. La segunda oruga se dibuja en el nuevo valor de y.
+- Durante la tercera iteración, `i` es 2 e `y` se convierte en `2.5 * padding`. La tercera oruga se dibuja en el nuevo valor de y.
+
+<table>
+
+<tr>
+
+<th>
+
+Orugas (Iteraciones del bucle)
+
+</th>
+
+<th>
+
+`x`
+
+</th>
+
+<th>
+
+`y`
+
+</th>
+
+</tr>
+
+<tr>
+
+<td>
+
+Primera
+
+</td>
+
+<td>
+
+0
+
+</td>
+
+<td>
+
+`0.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Segunda
+
+</td>
+
+<td>
+
+1
+
+</td>
+
+<td>
+
+`1.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Tercera
+
+</td>
+
+<td>
+
+2
+
+</td>
+
+<td>
+
+`2.5 * padding`
+
+</td>
+
+</tr>
+
+</table>
+
+`drawCaterpillar()` y `drawCaterpillars()` ahora deberían verse así:
+
+```js
+// ... declaraciones de variables, setup() y draw()
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+Así es como debería verse todo junto:
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+Cambia el valor de la variable global `numCaterpillars` y observa cómo el bucle for en `drawCaterpillars()` las espacia verticalmente en el lienzo.
+</Callout>
+
+
+## Paso 7 – Crear un arreglo para guardar la posición de cada oruga
+
+Ahora que hemos posicionado las orugas verticalmente en el lienzo, queremos darle a cada una una coordenada x única. Podemos hacer esto usando un arreglo. El arreglo contendrá las coordenadas x de cada oruga. Luego podemos mover las orugas aleatoriamente por la pantalla, haciendo posible una carrera.
+
+
+### 7.1 – Crear un [arreglo](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+
+- Declara el arreglo `caterpillarEnds` justo después de `numCaterpillars`: `let caterpillarEnds = [];`
+  - Este arreglo contendrá la posición x del segmento más a la izquierda de cada oruga.
+
+
+Aprenderás más sobre arreglos en el siguiente tutorial, [Jardín de Estructuras de Datos](/tutorials/data-structure-garden). Visita la referencia de MDN para [arreglos](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) para aprender más.
+
+- En `setup()`, agrega la coordenada x de cada oruga, colocándolas todas en la línea de salida.
+  - Haz un bucle for que se repita una vez por cada oruga: `for (let i=0; i < numCaterpillars; i++) { }`
+  - Dentro de las llaves, agrega la línea `caterpillarEnds.push(startLine);`
+    - Esto agregará el valor `startLine` al arreglo `caterpillarEnds` una vez por cada oruga que necesita ser dibujada en el boceto.
+    - El método `.push()` se usa para agregar un nuevo valor al final de un arreglo.
+
+Ahora `setup()` debería verse así:
+
+```js
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(6);
+
+  for (let i=0; i < numCaterpillars; i++) {
+    //add the position of last segment into an array
+    caterpillarEnds.push(startLine);
+  }
+}
+```
+
+- En la función `drawCaterpillars()`, cambia la línea `drawCaterpillar(circX,y)`:
+  - En lugar de usar `circX`, ahora usaremos los valores del arreglo `caterpillarEnds`.
+  - Dado que el índice `i` en el bucle for representa la posición de índice correcta en el arreglo `caterpillarEnds`, podemos cambiar `circX` a `caterpillarEnds[i]`: `drawCaterpillar(caterpillarEnds[i], y);`
+- Elimina `circX` de la función.
+  - Nota: `circX` todavía se usa al final de `draw()`. Adelante y elimínalo, lo agregaremos de nuevo más tarde.
+
+Tu función `drawCaterpillars()` debería verse así:
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {  
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw caterpillars using an array.
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+```
+
+
+### 7.2 – Mover las orugas aleatoriamente
+
+- Crea una nueva función personalizada fuera de `draw()` y nómbrala `moveCaterpillars()`
+- Define un nuevo bucle for que itere la misma cantidad de veces que hay orugas: `for (let i = 0; i < numCaterpillars; i += 1) { }`
+  - Este es el mismo sintaxis de bucle for usado en la función `drawCaterpillars()` ya que te permite referirte individualmente a cada oruga.
+- Dentro del bucle, asigna un valor aleatorio local a `move`:
+
+  ```js
+  let move = random(5,30);
+  ```
+
+- Una vez que comience la carrera, esto moverá aleatoriamente cada oruga entre 5 y 30 píxeles a la derecha cada vez que se ejecute `draw()`.
+- Puedes modificar los valores en `random()` dependiendo del rango de movimiento que quieras para tus orugas. Visita la [referencia de p5.js para `random()`](/reference/p5/random) para aprender más.
+
+Tu función podría verse así:
+
+```js
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+    caterpillarEnds[i] += move;
+  }
+}
+```
+
+En resumen, el orden de eventos en la función anterior es:
+
+- Por cada iteración del bucle, asignamos `move` a un número aleatorio entre 5 y 30.
+  - Esto significa que a cada oruga se le asigna un `move` aleatorio diferente.
+- Luego actualizamos el valor en la posición `i`<sup>ésima</sup> del arreglo `caterpillarEnds`, que es lo que la función `drawCaterpillar()` usa para mostrar la oruga.
+
+
+### 7.3 – Mover las orugas
+
+- Finalmente, llama a la función `moveCaterpillars()` en `draw()` antes de la llamada a la función `drawCaterpillars()`.
+
+¡Tu código debería verse así!
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+let segments = 6;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  
+  // Make changes to caterpillars' positions.
+  moveCaterpillars();
+
+  // Draws caterpillars in their new positions.
+  drawCaterpillars();
+}
+
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar their
+    // own x-coordinates.
+
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing; // Change x for next circle.
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## Paso 8 – Darle a las orugas un movimiento de arrastre
+
+Para replicar un movimiento de 'arrastre', aleatorizaremos el número de segmentos de cada oruga usando la función `random()`. Como repaso, la variable global `segments` determina el número de segmentos mostrados para las orugas. Ahora cambiaremos eso para que sea un parámetro en la función `drawCaterpillar()`.
+
+- Ve a la definición de la función `drawCaterpillar()`.
+  - Agrega un nuevo parámetro llamado `segments`. Ahora debería verse así: `function drawCaterpillar(x, y, segments) { ... }`
+  - Puedes eliminar la variable global `segments` en la parte superior del boceto.
+- Ve a la definición de la función `drawCaterpillars()`.
+  - Agrega `crawl` como tercer argumento en los paréntesis donde se llama a la función `drawCaterpillar()`: `drawCaterpillar(x, y, crawl);`
+  - Encima de esta línea, asigna un nuevo valor aleatorio a la variable `crawl` escribiendo: `let crawl = round(random(3, 6));`
+    - Esto significa que mientras el boceto se está ejecutando, el programa dibujará continuamente las orugas con longitudes aleatorias (entre 3 y 6 círculos) mientras las mueve desde la línea de salida hasta la línea de meta.
+    - Puedes modificar los valores en `random()` dependiendo de cuán largo y corto quieras que se arrastren las orugas.
+    - El valor aleatorio de la variable `crawl` poblará el parámetro `segments` en la definición de la función `drawCaterpillar()`, que determina cuántos círculos se dibujan.
+
+Tus funciones deberían verse así:
+
+```js
+// ... declaraciones de variables, funciones setup(), draw(), moveCaterpillars()
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    let crawl = round(random(3, 6));
+
+    // Draw caterpillars.
+    drawCaterpillar(x, y, crawl);
+  }
+}
+
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+## Paso 9 – Iniciar la carrera con un disparador de ratón
+
+- Declara una nueva variable global booleana llamada `isRacing` y establécela en `false`: `let isRacing = false`;
+  - Esta variable se comportará como una variable de estado, almacenando información sobre si las orugas están corriendo o no, como un valor booleano (`true` o `false`).
+- Define una función `mousePressed()`.
+  - En la función, establece el booleano `isRacing` en `true`.
+- La función debería verse así:
+
+  ```js
+  // Start the race when the
+  // user presses the mouse.
+  function mousePressed() {
+    isRacing = true;
+  }
+  ```
+
+- En la función `draw()`, crea una nueva sentencia if antes de la llamada a la función `drawCaterpillars()`: `if (isRacing === true) { }`
+- Mueve la llamada a la función `moveCaterpillars()` dentro de la sentencia if.
+  - Esto significa que las orugas solo comenzarán a moverse una vez que la carrera comience (después de presionar el ratón).
+- Tu código debería verse así:
+
+```js
+// ... define global variables
+
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  }
+
+  drawCaterpillars();
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// ... moveCaterpillars, drawCaterpillars, and drawCaterpillar functions.
+```
+
+
+## Paso 10 – Agregar mensajes para el inicio y el final de la carrera
+
+¡Bien hecho! En esta etapa de tu boceto, tienes una carrera de orugas que comienza con un clic del ratón.
+
+Ahora, todo lo que tenemos que hacer es agregar instrucciones en el lienzo sobre cómo usar el programa. También agregaremos un mensaje al final de la carrera para anunciar la oruga ganadora, que será aleatoria. Agregaremos de nuevo la función noLoop() para que la carrera termine cuando se declare un ganador.
+
+
+### 10.1 – Escribir un mensaje de inicio
+
+- Crea una nueva función personalizada después de `draw()` y nómbrala `writeStart()`.
+- Dentro de la función, agrega: `text(" 🏁 Click to start!", width / 2, height / 2);`
+  - Esto escribe el texto de instrucciones y lo coloca en el centro del lienzo.
+  - Alinea el texto al centro agregando `textAlign(CENTER);` encima del comando `text()`.
+  - Agrega estilos al texto. En este ejemplo, le daremos un color blanco sin trazo y un tamaño de texto de 24.
+- Tu función `writeStart()` debería verse así:
+
+  ```js
+  function writeStart() {
+   
+    // Style the text.
+    textSize(24);
+    textAlign(CENTER);
+    fill(255);
+    noStroke();
+   
+    // Display the message.
+    text("🏁 Click to start!", width / 2, height / 2);
+  }
+  ```
+
+- Regresa a la función `draw()` y agrega una sentencia else: `else {}`
+  - Esta sentencia else se ejecutará si la carrera aún no ha comenzado
+- Llama a la función `writeStart()` dentro del bloque de código de esta sentencia else.
+
+La función `draw()` debería verse así:
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // If the race hasn't started,
+    // write instructions to start.
+    writeStart();
+  }
+
+  //draw caterpillars at new position
+  drawCaterpillars();
+}
+```
+
+
+### 10.2 – Verificar si hay un ganador y escribir quién ganó.
+
+Necesitamos verificar si una de las orugas ha ganado. Si es así, necesitamos mostrar esa información y terminar la carrera.
+
+- Crea una nueva función debajo de `draw()` para verificar al ganador: `function checkWinner() {}`
+- Dentro de las llaves de la función, escribe un bucle for para verificar los valores x de cada oruga para ver si han ganado: `for (let i = 0; i < caterpillarEnds.length; i += 1) {}`
+- Dentro de las llaves del bucle for, incluye una sentencia if para ver si cada oruga cruzó la línea de meta: `if (caterpillarEnds[i] >= finishLine) {}`
+- Dentro de esta sentencia if, escribe al ganador en el texto dinámicamente usando un template literal:
+
+  ```js
+  text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+  ```
+
+  - Esto escribe dinámicamente texto mostrando el índice de la oruga que ganó. Dado que los índices comienzan en 0 y típicamente contamos las orugas comenzando en 1, sumamos 1 al valor de `i`
+  - Similar al Paso 9.1, alinea el texto al centro agregando: `textAlign(CENTER);` y agrega estilos al texto.
+- Dentro de la sentencia if también incluye la función `noLoop()` para hacer que `draw()` deje de ejecutarse.
+
+Tu función `checkWinner()` puede verse así:
+
+```js
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+
+      noLoop();
+    }
+  }
+}
+```
+
+Tu boceto final debería verse así:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+
+// Set a default state
+// before the race begins.
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+ 
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background,
+  // start, and finish line.
+  background(121, 96, 76);
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // if the race hasn't started
+    // instructions on start screen
+    writeStart();
+  }
+
+  // Draw caterpillars at
+  // the starting line.
+  drawCaterpillars();
+ 
+  // Check if there is a winner
+  checkWinner();
+}
+
+// Draw a message at the
+// start of the race.
+function writeStart() {
+  // Style the text.
+  textSize(24);
+  textAlign(CENTER);
+  fill(255);
+  noStroke();
+
+  // Display the message.
+  text("🏁 Click to start!", width / 2, height / 2);
+}
+
+// Draw one caterpillar.
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+
+// Draw all the caterpillars.
+function drawCaterpillars() {
+  let padding = height / numCaterpillars;
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate  
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    crawl = random(3, 6);
+
+    // Draw caterpillars.
+    drawCaterpillar(caterpillarEnds[i], y, crawl);
+  }
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// Move the caterpillars.
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar a random
+    // speed once the race has started.
+    let move = round(random(5, 30));
+  
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+// Display a message and stop the
+// sketch if there's a winner.
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(\`Caterpillar \${i + 1} wins!\`,width/2,height/2);
+
+      // end race by stopping draw() from running
+      noLoop();
+    }
+  }
+}
+`} />
+
+## Conclusión
+
+¡Felicidades por completar este tutorial! Ahora has aprendido a usar bucles para generar múltiples formas en movimiento en p5.js. Visita la [Referencia de p5.js](/reference) o los tutoriales anteriores para aprender más sobre [sentencias condicionales, interactividad,](/tutorials/conditionals-and-interactivity) [variables](/tutorials/variables-and-change) y [funciones](/tutorials/organizing-code-with-functions).
+
+
+## Próximos Pasos
+
+- Siguiente tutorial: [Jardín de Estructuras de Datos](/tutorials/data-structure-garden)
+
+
+## Referencias
+
+- [Tomando decisiones en tu código - MDN](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/conditionals)
+- [Bucles e iteración - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration)
+- [Arreglos - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+  - [`.push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push)

@@ -1,0 +1,1419 @@
+---
+title: "लूप्स के साथ दोहराव"
+description: "लूप्स और ऐरे का उपयोग करके रेंगती हुई कैटरपिलर रेस बनाएं!"
+category: introduction
+categoryIndex: 5
+featuredImage: ../images/featured/loops.png
+featuredImageAlt: तीन गुलाबी कैटरपिलर गोल-गोल आंखों के साथ शुरुआती रेखा पर "क्लिक करके शुरू करें" टेक्स्ट के साथ रेस की प्रतीक्षा कर रहे हैं।
+authors:
+  - Joanne Amarisa
+  - Layla Quiñones
+  - Greg Benedis-Grab
+---
+
+import EditableSketch from "../../../components/EditableSketch/index.astro";
+import Callout from "../../../components/Callout/index.astro";
+import AnnotatedLine from "../../../components/AnnotatedLine/index.astro";
+
+## परिचय
+
+क्या आप कभी अपने प्रोजेक्ट्स को अगले स्तर पर ले जाना चाहते हैं, केवल कुछ पंक्तियों के कोड से कई आकृतियाँ बनाकर? पेड़ों की एक पंक्ति, किताबों का एक ढेर, इंद्रधनुष के आर्च, या मधुमक्खी के छत्ते के अंदर का हिस्सा बनाने की कल्पना करें। ऐसे दृश्य बनाने के लिए जो एक ही आकृति के संस्करणों से बने हैं, हम व्यक्तिगत आकृतियों को कोड करने से आगे बढ़ते हैं, और लूप्स और ऐरे की अद्भुत दुनिया में प्रवेश करते हैं। आइए सीखें कि केवल कुछ पंक्तियों के कोड से दोहराव वाले पैटर्न कैसे बनाएं!
+
+![एक आर्च और षट्भुज आकृति "एकल वस्तु" लेबल के साथ लंबवत रूप से संरेखित हैं। तीर इन आकृतियों से "गुणित वस्तुओं" लेबल के तहत लंबवत रूप से संरेखित संबंधित पैटर्न की ओर इशारा करते हैं। एकल आर्च पांच लंबवत रूप से स्टैक किए गए आर्च की ओर इशारा करता है जो इंद्रधनुष का आकार बनाते हैं। षट्भुज कई षट्भुजों की ओर इशारा करता है जो मधुमक्खी के छत्ते के टेसेलेशन में व्यवस्थित हैं।](../images/introduction/loops-intro.png)
+
+प्रत्येक आकृति को एक नई पंक्ति के कोड से बनाना एक थकाऊ प्रक्रिया होगी। इसके बजाय, हम *लूप्स* का उपयोग कर सकते हैं, जो हमें कोड के ब्लॉक को जितनी बार चाहें उतनी बार निष्पादित और दोहराने की अनुमति देते हैं। इस ट्यूटोरियल में, हम लूप्स और ऐरे का उपयोग करके [एक कैटरपिलर रेस स्केच](https://editor.p5js.org/gbenedis@gmail.com/sketches/BrmtZ36ET) बनाते हैं।
+
+![तीन गुलाबी कैटरपिलर कैनवास के दाईं ओर हरी फिनिश लाइन तक पहुंचने के लिए रेंग रहे हैं।](../images/introduction/caterpillar-race-end.gif)
+
+कैटरपिलर का एक समूह रेस की शुरुआती रेखा पर शुरू होगा, और फिनिश लाइन पार करने वाला पहला कैटरपिलर जीतेगा। हर बार जब हम स्केच चलाते हैं तो जीतने वाला कैटरपिलर अलग होगा!
+
+इस ट्यूटोरियल में, आप:
+
+- *फॉर लूप्स* का उपयोग करके दोहराव वाले कार्यों और आकृतियों को बनाएंगे और अपडेट करेंगे
+- वेरिएबल और प्रोग्राम स्टेट को अपडेट करने और स्केच चलने के दौरान प्रोग्राम में बदलाव करने के लिए कस्टम फ़ंक्शन का उपयोग करेंगे।
+- विभिन्न परिणाम उत्पन्न करने के लिए [कंडीशनल स्टेटमेंट](/reference/p5/if) और `random()` का उपयोग करेंगे
+- माउस ट्रिगर और [बूलियन वेरिएबल](/reference/p5/Boolean) का उपयोग करके अपना स्केच चलाएंगे और रोकेंगे
+- कैटरपिलर की स्थितियों को एक ऐरे में स्टोर करेंगे
+
+### आपको क्या चाहिए
+
+- [p5.js वेब एडिटर](https://editor.p5js.org/)
+- x- और y-निर्देशांकों का उपयोग करके p5.js में बुनियादी आकृतियाँ और टेक्स्ट बनाने की समझ
+  - आप हमारे पिछले ट्यूटोरियल, [शुरुआत करें](/tutorials/get-started) का संदर्भ ले सकते हैं
+- वेरिएबल और कंडीशनल की समझ
+  - आप हमारे पिछले ट्यूटोरियल, [वेरिएबल और परिवर्तन](/tutorials/variables-and-change/) और [कंडीशनल और इंटरैक्टिविटी](/tutorials/conditionals-and-interactivity) का संदर्भ ले सकते हैं
+- कस्टम फ़ंक्शन और पैरामीटर की समझ
+  - आप हमारे पिछले ट्यूटोरियल, [फ़ंक्शन के साथ कोड व्यवस्थित करना](/tutorials/organizing-code-with-functions) का संदर्भ ले सकते हैं
+
+
+## चरण 1 – रेसट्रैक बनाएं
+
+- [p5.js वेब एडिटर](https://editor.p5js.org/) में एक नया प्रोजेक्ट खोलें, इसे "कैटरपिलर रेस" जैसा नाम दें, और सेव करें।
+- `setup()` में, एक 500x500 पिक्सेल का कैनवास बनाएं।
+- `setup()` के ऊपर दो नए ग्लोबल वेरिएबल घोषित करें जो आपकी शुरुआती रेखा और फिनिश लाइन के x-निर्देशांक को परिभाषित करें। हम दो वेरिएबल को startLine और finishLine नाम देंगे।
+  - उन्हें x-अक्ष पर मान दें, इस पर निर्भर करते हुए कि आप अपनी शुरुआती और फिनिश लाइन कहाँ रखना चाहते हैं। इस उदाहरण में, हम startLine को 30 और finishLine को 360 पर सेट करेंगे।
+- `draw()` फ़ंक्शन में:
+  - एक बैकग्राउंड कलर सेट करें। उदाहरण के लिए, हम इसे `background(121, 96, 76)` से भूरे रंग में सेट करेंगे;
+  - एक आयत बनाएं और इसकी x-निर्देशांक `startLine` के रूप में सेट करें। इसकी ऊंचाई `height` पर सेट करें ताकि यह कैनवास पर लंबवत रूप से फैले।
+  - `finishLine` पर एक और आयत बनाएं और वही चरण दोहराएं।
+  - दो आयतों को विभिन्न रंगों से भरें।
+- अपने स्केच को नाम देना और सेव करना न भूलें।
+
+आपका कोड इस तरह दिख सकता है:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+function setup() {
+  // 500x500 canvas
+  createCanvas(500, 500); 
+}
+
+function draw() {
+  //set background color
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+}
+`} />
+
+## चरण 2 – एक कैटरपिलर सेगमेंट बनाएं और इसे हिलाएं।
+
+इसके बाद, हम कैनवास पर एक कैटरपिलर का एक सेगमेंट बनाएंगे और इसे शुरुआती रेखा से फिनिश लाइन तक यात्रा कराएंगे। यह रेस के अंत में रुक जाएगा।
+
+- `circX` नाम का एक नया ग्लोबल वेरिएबल घोषित करें और इसे `startLine` का मान दें।
+  - यह कैटरपिलर के सेगमेंट का x-निर्देशांक होगा।
+- `circY` नाम का एक नया ग्लोबल वेरिएबल घोषित करें और इसे 250 (या ऊंचाई का आधा) का मान दें।
+  - यह कैटरपिलर के सेगमेंट का y-निर्देशांक होगा।
+- `draw()` में:
+  - `circle()` फ़ंक्शन का उपयोग करके कैटरपिलर सेगमेंट बनाएं। x निर्देशांक, y निर्देशांक, और व्यास निर्दिष्ट करने के लिए `circX`, `circY`, और 50 को आर्गुमेंट के रूप में शामिल करें: `circle(circX, circY, 50);`
+  - हम वृत्त को सफेद फिल कलर और पतला काला स्ट्रोक भी देंगे।
+  - circle कमांड के नीचे, `circX += 20;` का उपयोग करके `circX` को 20 से बढ़ाएं
+    - इसका मतलब है कि हर बार जब `draw()` फ़ंक्शन चलता है, वेरिएबल `circX` 20 पिक्सेल बढ़ जाएगा। स्केच पिछले वृत्त के दाईं ओर 20 पिक्सेल पर एक नया वृत्त बनाएगा जिससे कैटरपिलर का आकार बनेगा।
+- `draw()` के अंत में निम्नलिखित कंडीशनल स्टेटमेंट जोड़ें:
+
+  ```js
+  if (circX > finishLine) {
+    noLoop();
+  }
+  ```
+
+`noLoop()` फ़ंक्शन `draw()` फ़ंक्शन को दोबारा चलने से रोकता है। `if` स्टेटमेंट `noLoop()` का उपयोग करके `draw()` को रोकता है जब वृत्त का x-निर्देशांक finishLine के मान को पार कर जाता है। [`noLoop()`](/reference/p5/noLoop) के बारे में अधिक जानकारी के लिए p5.js संदर्भ पर जाएं।
+
+`setup()` में, जोड़ें: `frameRate(3);`
+
+- एक [फ्रेम रेट](/reference/p5/frameRate) वह संख्या है जितनी बार `draw()` एक सेकंड में चलता है। इसे कम संख्या पर सेट करने से इस एनिमेशन के लिए गतिविधियाँ अधिक ध्यान देने योग्य और नाटकीय होंगी।
+
+आपका कोड इस तरह दिखना चाहिए:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables to draw circles starting point.
+let circX = startLine;
+
+let circY = 250;
+
+function setup() {
+  createCanvas(500, 500); 
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw a circle.
+  fill(255);
+  stroke(0);
+  circle(circX, circY, 50);
+
+  // Move the x-coordinate
+  // to the right.
+  circX += 20;
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+### [If-स्टेटमेंट](/reference/p5/if)
+
+If-स्टेटमेंट, जैसा कि ऊपर लागू किया गया है, कोड के ब्लॉक को संदर्भित करता है जो केवल तब निष्पादित होता है जब दी गई शर्त सत्य होती है। यह सामान्यतः इस प्रकार लिखा जाता है:
+
+```js
+if (<शर्त>) {
+  <कोड>
+}
+```
+
+शर्त if-स्टेटमेंट के कोष्ठकों के अंदर निर्दिष्ट की जाती है। कर्ली ब्रैकेट `{ }` कोड ब्लॉक के शुरू और अंत को चिह्नित करते हैं। चरण 2 में, शर्त `circX > finishLine` `noLoop()` को कॉल करके `draw()` को दोबारा चलने से रोकती है जब वृत्त का x-निर्देशांक `finishLine` के मान से अधिक होता है।
+
+अधिक जानने के लिए p5.js संदर्भ [if](/reference/p5/if) पर जाएं।
+
+
+## चरण 3 – एक कैटरपिलर बनाएं
+
+हम चरण 2 से कैटरपिलर सेगमेंट को दोहराएंगे ताकि वृत्तों की एक पंक्ति बने जो कैटरपिलर के शरीर को बनाती है। हम एक पंक्ति में कई वृत्त बनाने के लिए *फॉर लूप* का उपयोग करेंगे।
+
+
+### 3.1 – कैटरपिलर के शरीर के गुण घोषित करें
+
+`setup()` के ऊपर:
+
+- `segments` नाम का एक नया वेरिएबल घोषित करें और इसे 6 का मान दें।
+  - यह वेरिएबल परिभाषित करता है कि कैटरपिलर के शरीर में कितने वृत्त हैं।
+- `spacing` नाम का एक नया वेरिएबल घोषित करें और इसे 20 का मान दें।
+  - यह वेरिएबल कैटरपिलर के शरीर के सेगमेंट के बीच पिक्सेल स्पेसिंग को परिभाषित करता है।
+- `segmentSize` नाम का एक नया वेरिएबल घोषित करें और इसे 50 का मान दें।
+  - यह वेरिएबल वृत्ताकार शरीर सेगमेंट के व्यास को परिभाषित करता है।
+
+
+### 3.2 – *फॉर लूप* के साथ कैटरपिलर का शरीर बनाएं
+
+`draw()` में:
+
+- फिनिश लाइन बनाने वाले कोड के बाद, सभी शरीर सेगमेंट को स्थित करने के लिए एक नया लोकल वेरिएबल `x` घोषित करें: `let x = circX;`
+- एक *फॉर लूप* जोड़ें: `for (let i = 0; i < segments; i += 1) { }`
+  - एक *फॉर लूप* हमारे द्वारा कर्ली ब्रैकेट के अंदर लिखे गए कोड को कई बार दोहराएगा।
+  - `circle()` बनाने वाली कोड की पंक्तियों को *फॉर लूप* के कर्ली ब्रैकेट में ले जाएं।
+- फॉर लूप के बाद, जोड़ें: `circX += spacing`
+  - यह हर बार `draw()` चलने पर कैटरपिलर के शरीर को दाईं ओर ले जाता है।
+
+आपका कोड इस तरह दिखना चाहिए:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // a local variable to position the body segments
+  let x = circX;
+
+  // draw multiple circles (caterpillar body)
+  for (let i = 0; i < segments; i += 1) {
+    // Draw a circle.
+
+    fill(255);
+    stroke(0);
+    circle(x, circY, segmentSize);
+    x += spacing;
+  }
+
+  // Move the caterpillar  to the right.
+  circX += spacing;
+  // stop the animation  when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+`} />
+
+
+### [फॉर लूप्स](/reference/p5/for)
+
+एक फॉर लूप कोड के एक सेक्शन (या ब्लॉक) को कई बार निष्पादित कर सकता है। फॉर लूप इस तरह लिखे जा सकते हैं:
+
+```js
+for (let i = 0; i < number; i += 1) { 
+  // कोड जिसे आप number बार निष्पादित करना चाहते हैं
+}
+```
+
+एक फॉर लूप के कर्ली ब्रैकेट `{}` के अंदर, हम वह कोड लिखते हैं जिसे हम बार-बार निष्पादित करना चाहते हैं। हम लूप की शर्त सेट करके यह निर्दिष्ट कर सकते हैं कि हम कोड को कितनी बार दोहराना चाहते हैं।
+
+एक फॉर लूप को इसके कोष्ठकों के अंदर तीन एक्सप्रेशन द्वारा परिभाषित किया जाता है, प्रत्येक सेमीकोलन द्वारा अलग किया जाता है। वे हैं:
+
+<AnnotatedLine code={({ bottom }) => `for (${bottom('init', ' let i = 0; ')} ${bottom('cond', 'i < number;')} ${bottom('instr', '  i += 1  ')}) { }`}>
+  <Fragment slot="init">इनिशियलाइज़ेशन</Fragment>
+  <Fragment slot="cond">शर्त</Fragment>
+  <Fragment slot="instr">निर्देश</Fragment>
+</AnnotatedLine>
+
+- **इनिशियलाइज़ेशन**: इटरेशन वेरिएबल `i` को गिनती शुरू करने के लिए एक संख्या से इनिशियलाइज़ करें।
+
+  ```js
+  let i = 0;
+  ```
+
+- **शर्त:** वह शर्त जो लूप को चालू रखती है। जब तक यह शर्त सत्य है, फॉर लूप चलता रहेगा। जब यह शर्त `false` हो जाती है, फॉर लूप रुक जाएगा।
+
+  ```js
+  i < number;
+  ```
+
+- **निर्देश:** यह प्रोग्राम को बताता है कि हर बार लूप चलने पर गिनती संख्या को कैसे बदलना है।
+
+  ```js
+  i += 1;
+  ```
+
+पहला एक्सप्रेशन, `let i = 0`, फॉर लूप को इनिशियलाइज़ या शुरू करता है।
+
+- i एक वेरिएबल है जो फॉर लूप की प्रारंभिक स्थिति को परिभाषित करता है। इसे *इंडेक्स* वेरिएबल के रूप में भी जाना जाता है। आमतौर पर, इंडेक्स 0 के मान से शुरू होता है, और प्रत्येक लूप में बढ़ता है। इस वेरिएबल का नाम कुछ भी हो सकता है। आम तौर पर, `i`, `j` और `k` जैसे एकल-अक्षर वेरिएबल का उपयोग किया जाता है, लेकिन अधिक वर्णनात्मक कुछ उपयोग करने में संकोच न करें।
+
+दूसरा एक्सप्रेशन, `i < number`, लूप के चलते रहने की शर्त है। इसे बूलियन एक्सप्रेशन के रूप में जाना जाता है, क्योंकि यह एक्सप्रेशन `true` या `false` लौटा सकता है। जब तक यह एक्सप्रेशन `true` है, फॉर लूप चलता रहेगा, और इस मामले में इंडेक्स वेरिएबल (`i`) बढ़ता रहेगा।
+
+- `number` कोई भी संख्यात्मक मान या वेरिएबल हो सकता है जो एक संख्यात्मक मान स्टोर करता है। गिनती के लिए, अक्सर पूर्णांकों का उपयोग किया जाता है।
+  - उदाहरण: `i < 5;` या `i < segments;`
+- इस मामले में, `number` फॉर लूप के चलने की संख्या निर्धारित करता है क्योंकि प्रारंभिक मान `i` 0 से शुरू होता है।
+- ऊपर के कैटरपिलर उदाहरण में, हमने इस मान को `segments` वेरिएबल पर सेट किया, जो कैटरपिलर के शरीर बनाने वाले वृत्तों की संख्या निर्दिष्ट करता है। जब तक इंडेक्स `segments` में संग्रहीत संख्या तक नहीं पहुंच जाता, लूप वृत्त बनाता रहेगा।
+  - एक बार जब बनाए गए वृत्तों की संख्या segments से कम नहीं रहती, प्रोग्राम फॉर लूप से बाहर निकलता है, और कोड की अगली पंक्ति पर जाता है।
+
+तीसरा एक्सप्रेशन, `i += 1`, यह है कि प्रत्येक लूप इटरेशन के अंत में इंडेक्स कैसे बदलेगा।
+
+- एक [**लूप इटरेशन**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration) एक लूप के एक बार चलने को संदर्भित करता है। उदाहरण के लिए, यदि एक फॉर लूप 3 बार चलता है, तो इसमें 3 इटरेशन हैं।
+- इस उदाहरण में, `i` वेरिएबल हर बार फॉर लूप चलने पर 1 से बढ़ेगा। इसका मतलब है कि पहली बार जब यह फॉर लूप चलता है, `i` 0 है। दूसरी बार जब लूप चलता है, `i` 1 है। तीसरी बार जब यह चलता है, `i` 2 है, और इसी तरह आगे (जब तक यह मान `number` तक नहीं पहुंच जाता)। इस एक्सप्रेशन `i += 1` को `i++` भी लिखा जा सकता है।
+
+सारांश में:
+
+1. जब एक प्रोग्राम फॉर लूप निष्पादित करता है, तो यह पहले पहले एक्सप्रेशन में लूप के इंडेक्स वेरिएबल को घोषित करता है।
+2. यह दूसरे एक्सप्रेशन की जांच करता है, जो एक बूलियन एक्सप्रेशन है। यदि यह `true` है, तो यह कर्ली ब्रैकेट के अंदर लिखा गया कोड चलाता है।
+3. एक लूप के अंत में, इटरेशन वेरिएबल, `i`, का मान तीसरे एक्सप्रेशन द्वारा परिभाषित अनुसार बदलता है।
+4. लूप इस प्रक्रिया को तब तक दोहराता है जब तक दूसरे एक्सप्रेशन की शर्त `false` न हो जाए। जब शर्त `false` होती है, प्रोग्राम फॉर लूप से बाहर निकलता है और स्केच में कोड की अगली पंक्तियों पर जाता है।
+
+अधिक जानने के लिए [फॉर लूप्स संदर्भ](/reference/p5/for) पर जाएं।
+
+
+### 3.3 – कैटरपिलर में और विवरण जोड़ें
+
+- यदि आप चाहें तो अपने कैटरपिलर के शरीर के लिए `fill()` रंग समायोजित करें। इस उदाहरण में, हम इसे गुलाबी रंग देंगे: `fill(255, 0, 200);`
+- कैटरपिलर की आंखें बनाएं। आंखों की स्थिति शरीर के लिए बनाए गए अंतिम वृत्त के x- और y-निर्देशांक के समान है। इसका मतलब है कि यह फॉर लूप द्वारा सभी वृत्तों को बनाने के बाद आता है, इसलिए हम आंखें फॉर लूप के बाद, लेकिन `noLoop()` से पहले जोड़ेंगे। यह सुनिश्चित करता है कि आंखें कैटरपिलर के शरीर के अंतिम वृत्त के ऊपर बनाई जाएं।
+  - `eyeSize` को `setup()` के ऊपर एक नए ग्लोबल वेरिएबल के रूप में घोषित करें, और इसे 15 का मान दें।
+  - दो वृत्त बनाएं।
+    - उन्हें काला फिल और मोटा सफेद स्ट्रोक दें।
+  - पहली आंख जोड़ें और इसके निर्देशांक और आकार सेट करें: `circle(x, circY-eyeSize, eyeSize);`
+    - यह आंख को अंतिम बनाए गए वृत्त के शीर्ष पर रखता है।
+  - दूसरी आंख जोड़ें और इसके निर्देशांक और आकार सेट करें: `circle(x - eyeSize, circY-eyeSize, eyeSize);`
+    - हम दूसरी आंख के x-निर्देशांक से `eyeSize` घटाते हैं ताकि दोनों आंखें बिना ओवरलैप के एक-दूसरे के बगल में हों।
+- जब आपका कैटरपिलर पूरा हो जाए, अपने कोड को `drawCaterpillar()` नाम के एक कस्टम फ़ंक्शन में व्यवस्थित करें। कैटरपिलर को जैसा चाहें संशोधित करें!
+  - `draw()` के बाहर `drawCaterpillar()` फ़ंक्शन परिभाषित करें।
+  - फ़ंक्शन में कैटरपिलर के शरीर के लिए आपका वृत्तों का फॉर लूप और कैटरपिलर की आंखों के लिए दो वृत्त शामिल होने चाहिए।
+  - इसे `draw()` फ़ंक्शन में कॉल करना न भूलें! `draw()` में if-स्टेटमेंट से पहले `drawCaterpillar();` टाइप करें जो लूप समाप्त करता है।
+
+अभी तक आपका स्केच इस तरह दिख सकता है:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  drawCaterpillar();
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillar() {
+  // Create a loop of circles
+  // to form the body.
+  let x = circX;
+
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, circY, segmentSize);
+
+    x+=spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, circY - eyeSize, eyeSize);
+  circle(x - eyeSize, circY - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+`bodySize` और `eyeSize` वेरिएबल को समायोजित करके कैटरपिलर के शरीर और आंखों के लिए विभिन्न आकारों के साथ खेलें।
+</Callout>
+
+
+## चरण 4 – `drawCaterpillar()` फ़ंक्शन को सामान्यीकृत करें
+
+जब स्केच पहली बार चलता है, हम चाहते हैं कि प्रत्येक कैटरपिलर शुरुआती रेखा पर हो। इसका मतलब है कि हमें अपने फ़ंक्शन में पैरामीटर जोड़ने होंगे ताकि हम उन्हें संशोधित करके निर्दिष्ट कर सकें कि कैटरपिलर कहाँ बनाए जाएं।
+
+- `drawCaterpillar()` फ़ंक्शन पर जाएं।
+  - फ़ंक्शन के कोष्ठकों में `x` को पैरामीटर के रूप में जोड़ें: `function drawCaterpillar(x) { ...}`
+    - ध्यान दें कि हमने पहले ही `drawCaterpillar()` फ़ंक्शन में `x` को एक लोकल वेरिएबल के रूप में घोषित किया था। हम उस घोषणा को हटा सकते हैं और इसके बजाय `x` पैरामीटर का उपयोग कर सकते हैं।
+  - फ़ंक्शन के कोष्ठकों में दूसरे पैरामीटर के रूप में `y` जोड़ें `function drawCaterpillar(x,y) { ... }`
+    - फ़ंक्शन बॉडी में `circY` के लिए `y` प्रतिस्थापित करें।
+
+आप कस्टम फ़ंक्शन, आर्गुमेंट और पैरामीटर के बारे में हमारे पिछले ट्यूटोरियल, [फ़ंक्शन के साथ कोड व्यवस्थित करना](/tutorials/organizing-code-with-functions), और p5.js संदर्भ [functions](/reference/p5/function) में अधिक जान सकते हैं।
+
+आपका कस्टम फ़ंक्शन अब इस तरह दिखना चाहिए:
+
+```js
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+- `draw()` में, तीन कैटरपिलर पाने के लिए `drawCaterpillar()` को तीन बार कॉल करें
+
+आपका draw फ़ंक्शन इस तरह दिखना चाहिए:
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Draw 3 caterpillars.
+  drawCaterpillar(circX,circY-150);
+  drawCaterpillar(circX,circY);
+  drawCaterpillar(circX,circY+150);
+
+  circX += spacing;
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+```
+
+
+## चरण 5 – एक `drawCaterpillars()` फ़ंक्शन बनाएं
+
+अब हमारे पास 3 कैटरपिलर एक ही समय में स्क्रीन पर यात्रा कर रहे हैं। हम `drawCaterpillar()` को तीन अलग-अलग फ़ंक्शन कॉल के बजाय एक लूप का उपयोग करके तीन कैटरपिलर बना सकते हैं।
+
+- `setup()` के ऊपर अपने स्केच में एक नया ग्लोबल वेरिएबल घोषित करें जो रेस में कैटरपिलर की संख्या के लिए हो: `let numCaterpillars = 3;`
+- `draw()` के बाहर एक नया कस्टम फ़ंक्शन बनाएं और इसे `drawCaterpillars()` नाम दें
+  - `drawCaterpillars()` फ़ंक्शन के अंदर एक नया फॉर लूप बनाएं।
+    - लूप के पहले एक्सप्रेशन में लूप के वेरिएबल को 0 पर इनिशियलाइज़ करें और शुरू करें।
+    - लूप के दूसरे एक्सप्रेशन में शर्त को `i < numCaterpillars` पर सेट करें।
+    - तीसरे एक्सप्रेशन में लूप के वेरिएबल को इंक्रीमेंट करें।
+  - फॉर लूप के कर्ली ब्रैकेट के अंदर `drawCaterpillar(circX, circY);` कॉल करें।
+- `draw()` में, `drawCaterpillars();` कॉल करें
+
+आपके `draw()` और `drawCaterpillars()` फ़ंक्शन इस तरह दिखने चाहिए:
+
+```js
+let numCaterpillars = 3;
+
+// ...वेरिएबल घोषणाएं और setup
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+```
+
+स्केच चलना चाहिए लेकिन इस बार आप केवल एक कैटरपिलर देखेंगे। ऐसा इसलिए है क्योंकि तीनों कैटरपिलर एक-दूसरे के ऊपर बनाई गई हैं। अगले चरण में इसे ठीक करने के लिए हम प्रत्येक कैटरपिलर की y निर्देशांक को समायोजित करेंगे:
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    drawCaterpillar(circX,circY);
+  }
+}
+
+function drawCaterpillar(x,y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x += spacing;
+  }
+ 
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## चरण 6 – कैटरपिलर को रेस के लिए स्थित करें
+
+**पुनर्कथन!** चरण 3 और 4 से, हमारे स्केच में दो कस्टम फ़ंक्शन हैं।
+
+- `drawCaterpillar(x,y)` पैरामीटर x और y का उपयोग करके एक कैटरपिलर बनाता है।
+- `drawCaterpillars()` `drawCaterpillar()` फ़ंक्शन को कॉल करता है और इसे एक फॉर लूप के अंदर रखता है ताकि हम कई कैटरपिलर बना सकें।
+
+अब, प्रत्येक कैटरपिलर एक ही x- और y-निर्देशांक पर है। हम कैटरपिलर को y-निर्देशांक के साथ अलग करने के लिए फॉर लूप में कोड को समायोजित करेंगे।
+
+- `drawCaterpillars()` फ़ंक्शन घोषणा पर जाएं।
+  - *फॉर लूप* के अंदर, कोड की एक नई पंक्ति जोड़ें: `let padding = height / numCaterpillars;`
+    - यह `padding` नाम का एक नया वेरिएबल घोषित करता है जो प्रत्येक कैटरपिलर के बीच लंबवत स्थान निर्धारित करता है।
+    - हम इसे कैनवास की `height` का मान, कैटरपिलर की संख्या से विभाजित करके देते हैं। यह कैनवास को लंबवत रूप से पंक्तियों में विभाजित करता है (प्रत्येक कैटरपिलर के लिए एक)। प्रत्येक पंक्ति की ऊंचाई `padding` का मान है।
+  - वेरिएबल `y` को इस मान से इनिशियलाइज़ करें: `let y = (i + 0.5) * padding`, जहां `y` प्रत्येक कैटरपिलर का y-निर्देशांक निर्धारित करता है।
+    - `i` वेरिएबल का उपयोग करके, फॉर लूप का प्रत्येक इटरेशन एक कैटरपिलर को अपनी पंक्ति में रखता है
+    - `i` में 0.5 जोड़ना कैटरपिलर को उस पंक्ति में केंद्रित करता है।
+- चरण 5 के समान, `drawCaterpillar()` फ़ंक्शन कॉल के कोष्ठकों में `y` को आर्गुमेंट के रूप में जोड़ें।
+  - कोड की पंक्ति अब होनी चाहिए: `drawCaterpillar(circX, y);`
+
+सारांश में, हमने `drawCaterpillar()` फ़ंक्शन के अंदर उपयोग किए जाने वाले पैरामीटर के रूप में `x` और `y` असाइन किए हैं। हम `drawCaterpillars()` में इस फ़ंक्शन को कॉल करते समय `circX` और `y` को आर्गुमेंट के रूप में उपयोग करते हैं।
+
+आप कस्टम फ़ंक्शन, आर्गुमेंट और पैरामीटर के बारे में हमारे पिछले ट्यूटोरियल, [फ़ंक्शन के साथ कोड व्यवस्थित करना](/tutorials/organizing-code-with-functions) में अधिक जान सकते हैं।
+
+आपका `drawCaterpillars()` फ़ंक्शन अभी तक इस तरह दिखना चाहिए:
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    let padding = height/numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    drawCaterpillar(circX, y, 6);
+  }
+}
+```
+
+
+### फॉर लूप इंडेक्स वेरिएबल के साथ ड्राइंग
+
+एक फॉर लूप का इंडेक्स वेरिएबल (`i`) प्रत्येक लूप इटरेशन के साथ क्रमिक रूप से बढ़ या घट सकता है। इस ट्यूटोरियल में, `i` वेरिएबल 0 से शुरू होता है और हर बार *फॉर लूप* चलने पर 1 से बढ़ता है।
+
+- पहली बार जब यह फॉर लूप चलता है, `i` 0 है।
+- दूसरी बार जब लूप चलता है, `i` 1 है।
+- तीसरी बार जब यह चलता है, `i` 2 है, और इसी तरह आगे।
+
+हम अपने चित्रों में इंडेक्स वेरिएबल का उपयोग संख्याओं को जोड़ने, घटाने, गुणा करने और विभाजित करने के लिए कर सकते हैं ताकि फॉर लूप के प्रत्येक इटरेशन के लिए उनका परिणाम अलग हो।
+
+इस उदाहरण में, हम प्रत्येक कैटरपिलर के बीच सुसंगत स्पेसिंग की गणना करने के लिए `i` का उपयोग करते हैं (नीचे तालिका देखें):
+
+- पहले इटरेशन के दौरान `i` 0 है और `y` `0.5 * padding` है। पहला कैटरपिलर उस y मान के साथ बनाया जाता है।
+- दूसरे इटरेशन के दौरान, `i` 1 है और `y` `1.5 * padding` हो जाता है। दूसरा कैटरपिलर नए y मान पर बनाया जाता है।
+- तीसरे इटरेशन के दौरान, `i` 2 है और `y` `2.5 * padding` हो जाता है। तीसरा कैटरपिलर नए y मान पर बनाया जाता है।
+
+<table>
+
+<tr>
+
+<th>
+
+कैटरपिलर (लूप इटरेशन)
+
+</th>
+
+<th>
+
+`x`
+
+</th>
+
+<th>
+
+`y`
+
+</th>
+
+</tr>
+
+<tr>
+
+<td>
+
+पहला
+
+</td>
+
+<td>
+
+0
+
+</td>
+
+<td>
+
+`0.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+दूसरा
+
+</td>
+
+<td>
+
+1
+
+</td>
+
+<td>
+
+`1.5 * padding`
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+तीसरा
+
+</td>
+
+<td>
+
+2
+
+</td>
+
+<td>
+
+`2.5 * padding`
+
+</td>
+
+</tr>
+
+</table>
+
+`drawCaterpillar()` और `drawCaterpillars()` अब इस तरह दिखने चाहिए:
+
+```js
+// ... वेरिएबल घोषणाएं, setup() और draw()
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+यहाँ सब कुछ एक साथ कैसा दिखना चाहिए:
+
+<EditableSketch code={`
+let numCaterpillars = 3;
+
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let circX = startLine;
+let circY = 250;
+let spacing = 20;
+let segments = 6;
+let segmentSize = 50;
+let eyeSize = 15;
+
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  circX += spacing;
+
+  // Draw the caterpillars on the canvas
+  drawCaterpillars();
+  // End the loop when x
+  // reaches the finish line.
+  if (circX > finishLine) {
+    noLoop();
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw the caterpillar
+    drawCaterpillar(circX, y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+
+    x+=spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+<Callout>
+ग्लोबल वेरिएबल `numCaterpillars` का मान बदलें और देखें कि `drawCaterpillars()` में फॉर लूप उन्हें कैनवास पर लंबवत रूप से कैसे स्पेस करता है।
+</Callout>
+
+
+## चरण 7 – प्रत्येक कैटरपिलर की स्थिति सहेजने के लिए एक ऐरे बनाएं
+
+अब जब हमने कैटरपिलर को कैनवास पर लंबवत रूप से स्थित कर दिया है, हम प्रत्येक को एक अद्वितीय x-निर्देशांक देना चाहते हैं। हम यह एक ऐरे का उपयोग करके कर सकते हैं। ऐरे में प्रत्येक कैटरपिलर के x निर्देशांक होंगे। फिर हम कैटरपिलर को स्क्रीन पर बेतरतीब ढंग से हिला सकते हैं, जिससे एक रेस संभव हो जाती है।
+
+
+### 7.1 – एक [ऐरे](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) बनाएं
+
+- `numCaterpillars` के ठीक बाद `caterpillarEnds` ऐरे घोषित करें: `let caterpillarEnds = [];`
+  - यह ऐरे प्रत्येक कैटरपिलर के सबसे बाएं सेगमेंट की x स्थिति रखेगा।
+
+
+आप अगले ट्यूटोरियल, [डेटा स्ट्रक्चर गार्डन](/tutorials/data-structure-garden) में ऐरे के बारे में अधिक सीखेंगे। अधिक जानने के लिए [ऐरे](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) के लिए MDN संदर्भ पर जाएं।
+
+- `setup()` में, प्रत्येक कैटरपिलर का x निर्देशांक जोड़ें, उन सभी को शुरुआती रेखा पर रखते हुए।
+  - एक फॉर लूप बनाएं जो प्रत्येक कैटरपिलर के लिए एक बार दोहराया जाएगा: `for (let i=0; i < numCaterpillars; i++) { }`
+  - कर्ली ब्रैकेट के अंदर, पंक्ति `caterpillarEnds.push(startLine);` जोड़ें
+    - यह `caterpillarEnds` ऐरे में `startLine` का मान एक बार प्रत्येक कैटरपिलर के लिए जोड़ देगा जिसे स्केच में बनाना है।
+    - `.push()` मेथड का उपयोग ऐरे के अंत में एक नया मान जोड़ने के लिए किया जाता है।
+
+अब `setup()` इस तरह दिखना चाहिए:
+
+```js
+function setup() {
+  createCanvas(500, 500);
+
+  // Set a slow frame rate.
+  frameRate(6);
+
+  for (let i=0; i < numCaterpillars; i++) {
+    //add the position of last segment into an array
+    caterpillarEnds.push(startLine);
+  }
+}
+```
+
+- `drawCaterpillars()` फ़ंक्शन में, `drawCaterpillar(circX,y)` पंक्ति बदलें:
+  - `circX` का उपयोग करने के बजाय, अब हम `caterpillarEnds` ऐरे में मानों का उपयोग करेंगे।
+  - चूंकि फॉर लूप में इंडेक्स `i` `caterpillarEnds` ऐरे में सही इंडेक्स स्थिति का प्रतिनिधित्व करता है, हम `circX` को `caterpillarEnds[i]` में बदल सकते हैं: `drawCaterpillar(caterpillarEnds[i], y);`
+- फ़ंक्शन से `circX` हटा दें।
+  - नोट: `circX` अभी भी `draw()` के अंत में उपयोग किया जाता है। इसे भी हटा दें और हम इसे बाद में वापस जोड़ देंगे।
+
+आपका `drawCaterpillars()` फ़ंक्शन इस तरह दिखना चाहिए:
+
+```js
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {  
+    // Space between each caterpillar.
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Draw caterpillars using an array.
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+```
+
+
+### 7.2 – कैटरपिलर को बेतरतीब ढंग से हिलाएं
+
+- `draw()` के बाहर एक नया कस्टम फ़ंक्शन बनाएं और इसे `moveCaterpillars()` नाम दें
+- एक नया फॉर लूप परिभाषित करें जो कैटरपिलर की संख्या जितनी बार इटरेट करे: `for (let i = 0; i < numCaterpillars; i += 1) { }`
+  - यह `drawCaterpillars()` फ़ंक्शन में उपयोग किया गया वही फॉर लूप सिंटैक्स है क्योंकि यह आपको प्रत्येक कैटरपिलर को व्यक्तिगत रूप से संदर्भित करने की अनुमति देता है।
+- लूप के अंदर, `move` को एक लोकल रैंडम मान असाइन करें:
+
+  ```js
+  let move = random(5,30);
+  ```
+
+- एक बार रेस शुरू होने के बाद, यह हर बार `draw()` चलने पर प्रत्येक कैटरपिलर को 5 और 30 पिक्सेल के बीच बेतरतीब ढंग से दाईं ओर हिलाएगा।
+- आप अपने कैटरपिलर के लिए जो गति की सीमा चाहते हैं उसके अनुसार `random()` में मानों को संशोधित कर सकते हैं। अधिक जानने के लिए [`random()` के लिए p5.js संदर्भ](/reference/p5/random) पर जाएं।
+
+आपका फ़ंक्शन इस तरह दिख सकता है:
+
+```js
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+    caterpillarEnds[i] += move;
+  }
+}
+```
+
+सारांश में, ऊपर के फ़ंक्शन में घटनाओं का क्रम है:
+
+- प्रत्येक लूप इटरेशन के लिए, हम `move` को 5 और 30 के बीच एक रैंडम संख्या असाइन करते हैं।
+  - इसका मतलब है कि प्रत्येक कैटरपिलर को एक अलग रैंडम `move` असाइन किया जाता है।
+- फिर हम `caterpillarEnds` ऐरे में `i`<sup>वीं</sup> स्थिति पर मान अपडेट करते हैं, जो `drawCaterpillar()` फ़ंक्शन कैटरपिलर प्रदर्शित करने के लिए उपयोग करता है।
+
+
+### 7.3 – कैटरपिलर को हिलाएं
+
+- अंत में, `draw()` में `drawCaterpillars()` फ़ंक्शन कॉल से पहले `moveCaterpillars()` फ़ंक्शन कॉल करें।
+
+आपका कोड इस तरह दिखना चाहिए!
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+let segments = 6;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+function setup() {
+  createCanvas(500, 500);
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+  
+  // Make changes to caterpillars' positions.
+  moveCaterpillars();
+
+  // Draws caterpillars in their new positions.
+  drawCaterpillars();
+}
+
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    //Give each caterpillar a
+    //random speed.
+    let move = random(5, 30);
+
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar their
+    // own x-coordinates.
+
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+    drawCaterpillar(caterpillarEnds[i], y);
+  }
+}
+
+function drawCaterpillar(x, y) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing; // Change x for next circle.
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+`} />
+
+
+## चरण 8 – कैटरपिलर को रेंगने की गति दें
+
+'रेंगने' की गति को दोहराने के लिए, हम `random()` फ़ंक्शन का उपयोग करके प्रत्येक कैटरपिलर के सेगमेंट की संख्या को रैंडमाइज़ करेंगे। याद दिलाने के लिए, ग्लोबल `segments` वेरिएबल कैटरपिलर के लिए प्रदर्शित सेगमेंट की संख्या निर्धारित करता है। अब हम इसे `drawCaterpillar()` फ़ंक्शन में एक पैरामीटर बनाएंगे।
+
+- `drawCaterpillar()` फ़ंक्शन परिभाषा पर जाएं।
+  - `segments` नाम का एक नया पैरामीटर जोड़ें। अब यह इस तरह दिखना चाहिए: `function drawCaterpillar(x, y, segments) { ... }`
+  - आप स्केच के शीर्ष पर `segments` ग्लोबल वेरिएबल हटा सकते हैं।
+- `drawCaterpillars()` फ़ंक्शन परिभाषा पर जाएं।
+  - `crawl` को तीसरे आर्गुमेंट के रूप में कोष्ठकों में जोड़ें जहां `drawCaterpillar()` फ़ंक्शन कॉल किया जाता है: `drawCaterpillar(x, y, crawl);`
+  - इस पंक्ति के ऊपर, `crawl` वेरिएबल को एक नया रैंडम मान असाइन करें: `let crawl = round(random(3, 6));`
+    - इसका मतलब है कि जब स्केच चल रहा है, प्रोग्राम लगातार कैटरपिलर को रैंडम लंबाई (3 से 6 वृत्तों के बीच) पर बनाएगा जबकि उन्हें शुरुआती रेखा से फिनिश लाइन तक ले जाएगा।
+    - आप `random()` में मानों को संशोधित कर सकते हैं इस पर निर्भर करते हुए कि आप कैटरपिलर को कितना लंबा और छोटा रेंगना चाहते हैं।
+    - `crawl` वेरिएबल का रैंडम मान `drawCaterpillar()` फ़ंक्शन परिभाषा में `segments` पैरामीटर को पॉपुलेट करेगा, जो निर्धारित करता है कि कितने वृत्त बनाए जाएं।
+
+आपके फ़ंक्शन इस तरह दिखने चाहिए:
+
+```js
+// ... वेरिएबल घोषणाएं, setup(), draw(), moveCaterpillars() फ़ंक्शन
+function drawCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate
+    let padding = height / numCaterpillars;
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    let crawl = round(random(3, 6));
+
+    // Draw caterpillars.
+    drawCaterpillar(x, y, crawl);
+  }
+}
+
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+```
+
+## चरण 9 – माउस ट्रिगर से रेस शुरू करें
+
+- `isRacing` नाम का एक नया बूलियन ग्लोबल वेरिएबल घोषित करें और इसे `false` पर सेट करें: `let isRacing = false`;
+  - यह वेरिएबल एक स्टेट वेरिएबल के रूप में व्यवहार करेगा, बूलियन मान (`true` या `false`) के रूप में यह जानकारी संग्रहीत करेगा कि कैटरपिलर रेस कर रहे हैं या नहीं।
+- एक `mousePressed()` फ़ंक्शन परिभाषित करें।
+  - फ़ंक्शन में, `isRacing` बूलियन को `true` पर सेट करें।
+- फ़ंक्शन इस तरह दिखना चाहिए:
+
+  ```js
+  // Start the race when the
+  // user presses the mouse.
+  function mousePressed() {
+    isRacing = true;
+  }
+  ```
+
+- `draw()` फ़ंक्शन में, `drawCaterpillars()` फ़ंक्शन कॉल से पहले एक नया if-स्टेटमेंट बनाएं: `if (isRacing === true) { }`
+- `moveCaterpillars()` फ़ंक्शन कॉल को if-स्टेटमेंट में ले जाएं।
+  - इसका मतलब है कि कैटरपिलर तभी चलना शुरू करेंगे जब रेस शुरू हो (माउस दबाने के बाद)।
+- आपका कोड इस तरह दिखना चाहिए:
+
+```js
+// ... define global variables
+
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  }
+
+  drawCaterpillars();
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// ... moveCaterpillars, drawCaterpillars, and drawCaterpillar functions.
+```
+
+
+## चरण 10 – रेस की शुरुआत और अंत के लिए संदेश जोड़ें
+
+शाबाश! आपके स्केच की इस अवस्था में, आपके पास एक कैटरपिलर रेस है जो माउस क्लिक से शुरू होती है।
+
+अब, हमें बस कैनवास पर निर्देश जोड़ने हैं कि प्रोग्राम का उपयोग कैसे करें। हम रेस के अंत में विजेता कैटरपिलर की घोषणा करने के लिए एक संदेश भी जोड़ेंगे, जो रैंडम होगा। हम noLoop() फ़ंक्शन वापस जोड़ देंगे ताकि विजेता घोषित होने पर रेस समाप्त हो जाए।
+
+
+### 10.1 – एक शुरुआती संदेश लिखें
+
+- `draw()` के बाद एक नया कस्टम फ़ंक्शन बनाएं और इसे `writeStart()` नाम दें।
+- फ़ंक्शन के अंदर, जोड़ें: `text(" 🏁 Click to start!", width / 2, height / 2);`
+  - यह निर्देश टेक्स्ट लिखता है और इसे कैनवास के केंद्र में रखता है।
+  - `text()` कमांड के ऊपर `textAlign(CENTER);` जोड़कर टेक्स्ट को केंद्र में संरेखित करें।
+  - टेक्स्ट में स्टाइल जोड़ें। इस उदाहरण में, हम इसे बिना स्ट्रोक के सफेद रंग और 24 का टेक्स्ट साइज देंगे।
+- आपका `writeStart()` फ़ंक्शन इस तरह दिखना चाहिए:
+
+  ```js
+  function writeStart() {
+   
+    // Style the text.
+    textSize(24);
+    textAlign(CENTER);
+    fill(255);
+    noStroke();
+   
+    // Display the message.
+    text("🏁 Click to start!", width / 2, height / 2);
+  }
+  ```
+
+- `draw()` फ़ंक्शन पर वापस जाएं और एक else-स्टेटमेंट जोड़ें: `else {}`
+  - यह else-स्टेटमेंट तब निष्पादित होगा जब रेस अभी शुरू नहीं हुई है
+- इस else-स्टेटमेंट कोड ब्लॉक के अंदर `writeStart()` फ़ंक्शन कॉल करें।
+
+`draw()` फ़ंक्शन इस तरह दिखना चाहिए:
+
+```js
+function draw() {
+  // Draw the background.
+  background(121, 96, 76);
+
+  // Draw the start and finish lines.
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // If the race hasn't started,
+    // write instructions to start.
+    writeStart();
+  }
+
+  //draw caterpillars at new position
+  drawCaterpillars();
+}
+```
+
+
+### 10.2 – विजेता की जांच करें और लिखें कि कौन जीता।
+
+हमें जांचना होगा कि क्या किसी कैटरपिलर ने जीत हासिल की है। यदि हां, तो हमें वह जानकारी प्रदर्शित करनी होगी और रेस समाप्त करनी होगी।
+
+- विजेता की जांच करने के लिए `draw()` के नीचे एक नया फ़ंक्शन बनाएं: `function checkWinner() {}`
+- फ़ंक्शन के कर्ली ब्रैकेट के अंदर, प्रत्येक कैटरपिलर के x मान की जांच करने के लिए एक फॉर लूप लिखें कि क्या उन्होंने जीत हासिल की: `for (let i = 0; i < caterpillarEnds.length; i += 1) {}`
+- फॉर लूप के कर्ली ब्रैकेट के अंदर, यह देखने के लिए एक if स्टेटमेंट शामिल करें कि क्या प्रत्येक कैटरपिलर ने फिनिश लाइन पार की: `if (caterpillarEnds[i] >= finishLine) {}`
+- इस if स्टेटमेंट के अंदर, template literal का उपयोग करके विजेता को डायनामिक रूप से टेक्स्ट में लिखें:
+
+  ```js
+  text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+  ```
+
+  - यह विजेता कैटरपिलर के इंडेक्स को प्रदर्शित करने वाला टेक्स्ट डायनामिक रूप से लिखता है। चूंकि इंडेक्स 0 से शुरू होते हैं और आमतौर पर हम कैटरपिलर की गिनती 1 से शुरू करते हैं, हमने `i` के मान में 1 जोड़ा
+  - चरण 9.1 के समान, `textAlign(CENTER);` जोड़कर टेक्स्ट को केंद्र में संरेखित करें और टेक्स्ट में स्टाइल जोड़ें।
+- if स्टेटमेंट के अंदर `noLoop()` फ़ंक्शन भी शामिल करें ताकि `draw()` चलना बंद हो जाए।
+
+आपका `checkWinner()` फ़ंक्शन इस तरह दिख सकता है:
+
+```js
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(`Caterpillar ${i + 1} wins!`, width / 2, height / 2);
+
+      noLoop();
+    }
+  }
+}
+```
+
+आपका अंतिम स्केच इस तरह दिखना चाहिए:
+
+<EditableSketch code={`
+// Set variables to draw the racetrack.
+let startLine = 30;
+let finishLine = 400;
+
+// Set variables for the caterpillar.
+let spacing = 20;
+let segmentSize = 30;
+let eyeSize = 15;
+
+// Set variables for the race.
+let numCaterpillars = 3;
+let caterpillarEnds = [];
+
+// Set a default state
+// before the race begins.
+let isRacing = false;
+
+function setup() {
+  createCanvas(500, 500);
+ 
+  // Set a slow frame rate.
+  frameRate(3);
+
+  for (let i=0;i<numCaterpillars;i++) {
+    caterpillarEnds.push(startLine)
+  }
+}
+
+function draw() {
+  // Draw the background,
+  // start, and finish line.
+  background(121, 96, 76);
+  noStroke();
+  fill(0);
+  rect(startLine, 0, 5, height);
+  fill(0, 255, 0);
+  rect(finishLine, 0, 20, height);
+
+  // Move caterpillars if
+  // race has started.
+  if (isRacing === true) {
+    moveCaterpillars();
+  } else { 
+    // if the race hasn't started
+    // instructions on start screen
+    writeStart();
+  }
+
+  // Draw caterpillars at
+  // the starting line.
+  drawCaterpillars();
+ 
+  // Check if there is a winner
+  checkWinner();
+}
+
+// Draw a message at the
+// start of the race.
+function writeStart() {
+  // Style the text.
+  textSize(24);
+  textAlign(CENTER);
+  fill(255);
+  noStroke();
+
+  // Display the message.
+  text("🏁 Click to start!", width / 2, height / 2);
+}
+
+// Draw one caterpillar.
+function drawCaterpillar(x, y, segments) {
+  // Create a loop of circles
+  // to form the body.
+  for (let i = 0; i < segments; i += 1) {
+    fill(255, 0, 200);
+    stroke(0);
+    strokeWeight(1);
+    circle(x, y, 50);
+    x += spacing;
+  }
+
+  // Draw the caterpillar's eyes.
+  fill(0);
+  stroke(255);
+  strokeWeight(3);
+  circle(x, y - eyeSize, eyeSize);
+  circle(x - eyeSize, y - eyeSize, eyeSize);
+}
+
+// Draw all the caterpillars.
+function drawCaterpillars() {
+  let padding = height / numCaterpillars;
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Update each caterpillar x-coordinate  
+    let y = (i + 0.5) * padding;
+
+    // Update length of caterpillar.   
+    crawl = random(3, 6);
+
+    // Draw caterpillars.
+    drawCaterpillar(caterpillarEnds[i], y, crawl);
+  }
+}
+
+// Start the race when the
+// user presses the mouse.
+function mousePressed() {
+  isRacing = true;
+}
+
+// Move the caterpillars.
+function moveCaterpillars() {
+  for (let i = 0; i < numCaterpillars; i += 1) {
+    // Give each caterpillar a random
+    // speed once the race has started.
+    let move = round(random(5, 30));
+  
+    // Update caterpillars' x-coordinates
+    caterpillarEnds[i] += move;
+  }
+}
+
+// Display a message and stop the
+// sketch if there's a winner.
+function checkWinner() {
+  for (let i = 0; i < caterpillarEnds.length; i += 1) {
+    if (caterpillarEnds[i] >= finishLine) {
+      // Style the text.
+      textSize(24);
+      textAlign(CENTER);
+      fill(255);
+      noStroke();
+
+      // Display the message.
+      text(\`Caterpillar \${i + 1} wins!\`,width/2,height/2);
+
+      // end race by stopping draw() from running
+      noLoop();
+    }
+  }
+}
+`} />
+
+## निष्कर्ष
+
+इस ट्यूटोरियल को पूरा करने पर बधाई! अब आपने p5.js में कई गतिशील आकृतियाँ उत्पन्न करने के लिए लूप्स का उपयोग करना सीख लिया है। [कंडीशनल स्टेटमेंट, इंटरैक्टिविटी,](/tutorials/conditionals-and-interactivity) [वेरिएबल](/tutorials/variables-and-change) और [फ़ंक्शन](/tutorials/organizing-code-with-functions) के बारे में अधिक जानने के लिए [p5.js संदर्भ](/reference) या पिछले ट्यूटोरियल पर जाएं।
+
+
+## अगले कदम
+
+- अगला ट्यूटोरियल: [डेटा स्ट्रक्चर गार्डन](/tutorials/data-structure-garden)
+
+
+## संदर्भ
+
+- [अपने कोड में निर्णय लेना - MDN](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/conditionals)
+- [लूप्स और इटरेशन - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration)
+- [ऐरे - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+  - [`.push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push)
